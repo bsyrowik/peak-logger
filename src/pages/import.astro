@@ -1,0 +1,153 @@
+---
+import Layout from '../layouts/Layout.astro';
+import StravaActivitySummaryCard from '../components/StravaActivitySummaryCard.astro';
+import PageNav from '../components/PageNav.astro';
+import { getLatestActivities } from '@util/strava';
+import type { Activity } from '@util/strava';
+import { getPrettyActivityList } from '@util/activity';
+
+import '../styles/checkbox.css';
+import { getStravaActivitiesForUser } from '@util/db';
+
+if (!Astro.locals.user) {
+    // Not logged in - go to main page
+    return Astro.redirect('/about');
+}
+
+const count: number = 24;
+const page: number = Number(Astro.url.searchParams.get('page')) || 1;
+const enabledActivities: number = Astro.locals.user.enabled_activities;
+const enabledActivitiesList = getPrettyActivityList(enabledActivities);
+var latestActivities: Activity[] = [];
+var mayBeAnotherPage: boolean = false;
+const haveStrava = Astro.locals.user.strava_access_token !== null;
+const userActivities = await getStravaActivitiesForUser(
+    Astro.locals.user.strava_id
+);
+const userActivityIDs = userActivities.map((a) => a.id);
+if (haveStrava) {
+    latestActivities = await getLatestActivities(
+        Astro.locals.user,
+        count,
+        page
+    );
+    mayBeAnotherPage = latestActivities.length == count;
+}
+---
+
+<Layout title='Peak Logger'>
+    {
+        haveStrava && (
+            <div class='centered-div'>
+                <input
+                    class='checkbox-style'
+                    type='checkbox'
+                    id='filter-checkbox'
+                    enabled-activities={enabledActivitiesList.join(',')}
+                    transition:persist
+                />
+                Filter activities to only include{' '}
+                {enabledActivitiesList.join(', ')}.
+                <br />
+                You can modify the "Enabled Activities" on the{' '}
+                <a href='/account' class='underline'>
+                    Settings Page
+                </a>
+                .
+            </div>
+        )
+    }
+
+    <PageNav
+        href='/import?'
+        page={page}
+        mayBeAnotherPage={mayBeAnotherPage}
+        transition:persist
+    />
+    <div class='link-card-grid md:p-2.5'>
+        {latestActivities.length == 0 && <p>No more activities.</p>}
+        {
+            latestActivities.map((activity) => (
+                <StravaActivitySummaryCard
+                    activity={activity}
+                    imported={userActivityIDs.find(
+                        (id) => id == Number(activity.id)
+                    )}
+                />
+            ))
+        }
+    </div>
+    <PageNav
+        href='/import?'
+        page={page}
+        mayBeAnotherPage={mayBeAnotherPage}
+        transition:persist
+    />
+</Layout>
+{
+    !haveStrava && (
+        <p>
+            No linked Strava account! Link a Strava account on the{' '}
+            <a href='/account' class='underline'>
+                Settings page
+            </a>
+            .
+        </p>
+    )
+}
+
+<style>
+    .centered-div {
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+    }
+</style>
+
+<script is:inline>
+    function filterActivities(event) {
+        console.log('in event listener...');
+        const filter = event.currentTarget.checked;
+        const enabledActivities = event.currentTarget
+            .getAttribute('enabled-activities')
+            .split(',');
+
+        document.querySelectorAll('.strava-activity-card').forEach((e) => {
+            if (filter) {
+                e.style.display = 'none';
+            } else {
+                e.style.display = 'block';
+            }
+        });
+
+        if (filter) {
+            console.log('filtering to only', enabledActivities);
+            enabledActivities.forEach((activityName) => {
+                const activities = document.querySelectorAll(
+                    '.sport_type_' + activityName
+                );
+                //console.log(activities);
+                activities.forEach((e) => (e.style.display = 'block'));
+            });
+        }
+    }
+
+    if (!window.hasOwnProperty('input')) {
+        const input = document.querySelector('input#filter-checkbox');
+        if (input) {
+            console.log('adding event listener');
+            input.addEventListener('click', filterActivities);
+        }
+    } else {
+        console.log('should trigger event!');
+    }
+</script>
+
+<script is:inline data-astro-rerun>
+    // This gets run every time; force filtering of the items.
+    if (!window.hasOwnProperty('input')) {
+        const input = document.querySelector('input#filter-checkbox');
+        var trigger = new Event('click');
+        input.dispatchEvent(trigger);
+    }
+</script>

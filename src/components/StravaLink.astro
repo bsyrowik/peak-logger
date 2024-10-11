@@ -1,0 +1,19 @@
+---
+import ExternalLinkIcon from './ExternalLinkIcon.astro';
+const { href, text, ...props } = Astro.props;
+var linkText = text ? text : 'View on Strava';
+---
+
+<span>
+    <a
+        href={'https://strava.com/' + (href ? href : '')}
+        {...props}
+        target='_blank'>{linkText}</a
+    ><ExternalLinkIcon />
+</span>
+
+<style>
+    span {
+        color: #fc4c02;
+    }
+</style>

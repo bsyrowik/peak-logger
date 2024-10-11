@@ -1,0 +1,88 @@
+---
+import type { User } from '@util/db';
+import { PBPostAscentsName, PBAscentsArePublicName } from 'src/consts';
+
+interface Props {
+    user: User;
+}
+const { user } = Astro.props;
+
+var postSummits = user.pb_post_summits;
+var ascentsArePublic = user.pb_ascents_are_public;
+var havePB = user.pb_email ? true : false;
+---
+
+<input
+    class='checkbox-style post-summits-to-pb'
+    id={PBPostAscentsName}
+    name={PBPostAscentsName}
+    type='checkbox'
+    checked={postSummits ? true : undefined}
+    disabled={havePB ? undefined : true}
+/>
+<label
+    class={(havePB ? '' : 'disabled ') + 'text-black'}
+    for={PBPostAscentsName}>Post summited peaks to Peakbagger.com.</label
+>
+<br />
+
+<input
+    class='checkbox-style ml-8 pb-ascents-are-public'
+    id={PBAscentsArePublicName}
+    name={PBAscentsArePublicName}
+    type='checkbox'
+    checked={ascentsArePublic ? true : undefined}
+    disabled={postSummits && havePB ? undefined : true}
+/>
+<label
+    class={'pb-ascents-are-public' +
+        (postSummits && havePB ? ' placeholder' : ' disabled')}
+    for={PBAscentsArePublicName}>Make Peakbagger.com trip reports public.</label
+>
+<br />
+
+<script>
+    document.addEventListener('astro:page-load', () => {
+        const pbPostCheckbox: HTMLInputElement = document.querySelector(
+            'input.post-summits-to-pb'
+        )!;
+        pbPostCheckbox?.addEventListener('click', async (event) => {
+            if (!event.currentTarget) {
+                return;
+            }
+            const checkbox = event.currentTarget as unknown as HTMLInputElement;
+            const checked = checkbox.checked;
+            document
+                .querySelectorAll<HTMLInputElement>(
+                    'input.pb-ascents-are-public'
+                )
+                .forEach((e: HTMLInputElement) => {
+                    if (checked) {
+                        e.disabled = false;
+                    } else {
+                        e.disabled = true;
+                    }
+                });
+            document
+                .querySelectorAll<HTMLLabelElement>(
+                    'label.pb-ascents-are-public'
+                )
+                .forEach((e: HTMLLabelElement) => {
+                    if (checked) {
+                        e.classList.remove('disabled');
+                    } else {
+                        e.classList.add('disabled');
+                    }
+                });
+        });
+    });
+</script>
+
+<style>
+    label {
+        @apply text-black;
+    }
+    label.disabled {
+        @apply text-gray-400;
+    }
+</style>

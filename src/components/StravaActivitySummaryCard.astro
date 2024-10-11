@@ -1,0 +1,259 @@
+---
+import StravaLink from './StravaLink.astro';
+
+import type { Activity } from '@util/strava';
+import { activityEnabledForUser } from '@util/activity';
+import { niceDate, formatTime } from '@util/util';
+import ImportButton from './buttons/ImportButton.astro';
+
+interface Props {
+    activity: Activity;
+    imported: number | undefined;
+}
+
+const { activity, imported } = Astro.props;
+const user = Astro.locals.user;
+const havePolyline =
+    activity.map.summary_polyline && activity.map.summary_polyline.length > 0;
+const activityEnabled = activityEnabledForUser(user, activity.sport_type);
+---
+
+<script>
+    async function expandMap(event: Event) {
+        console.log('expand map');
+        if (!event.currentTarget) {
+            return;
+        }
+
+        const buttonDiv: HTMLDivElement =
+            event.currentTarget as unknown as HTMLDivElement;
+        if (!buttonDiv) return;
+        const div = buttonDiv.parentElement;
+        if (!div) return;
+
+        const icon: HTMLSpanElement | null = div.querySelector(
+            'span.map-expand-icon'
+        );
+        if (!icon) return;
+        const mapDiv: HTMLDivElement | null = div.querySelector('div.map-div');
+        if (!mapDiv) return;
+        const hidden = mapDiv.classList.contains('hidden');
+
+        if (mapDiv.dataset.mapPolyline === undefined) return;
+        const activityPolyline: string = JSON.parse(mapDiv.dataset.mapPolyline);
+        if (!activityPolyline) return;
+
+        if (hidden) {
+            icon.innerHTML = '&and;';
+            mapDiv.classList.remove('hidden');
+        } else {
+            icon.innerHTML = '&or;';
+            mapDiv.classList.add('hidden');
+            return;
+        }
+
+        // Map settings
+        const username = 'mapbox';
+        const access_token =
+            'pk.eyJ1IjoiYmFpbnN0ZXIiLCJhIjoiY20yenQ4cnQ1MGZhazJqcHp0djNiMmw0YiJ9.idLVYJm1M_JoqQyVsgF56Q';
+        const width = 450;
+        const height = 250;
+        const style = 'outdoors-v12';
+        const path_weight = '3';
+        const path_color = '090';
+        const path_opacity = '1';
+        const polyline: string = encodeURIComponent(activityPolyline);
+
+        var src =
+            'https://api.mapbox.com/styles/v1/' +
+            username +
+            '/' +
+            style +
+            '/static/path-' +
+            path_weight +
+            '+' +
+            path_color +
+            '-' +
+            path_opacity +
+            '(' +
+            polyline +
+            ')' +
+            '/auto/' +
+            width +
+            'x' +
+            height +
+            '?access_token=' +
+            access_token;
+
+        const mapImg = mapDiv.querySelector('img');
+        if (!mapImg) {
+            mapDiv.innerHTML =
+                '<img class="w-full max-w-[450px] max-h-[250px]" src="' +
+                src +
+                '"/>';
+        }
+    }
+
+    document.addEventListener('astro:page-load', () => {
+        const mapButtons = document.querySelectorAll('div.map-expand-div');
+        if (mapButtons) {
+            mapButtons.forEach((button) =>
+                button.addEventListener('click', expandMap)
+            );
+        }
+    });
+</script>
+
+<div class={'strava-activity-card' + ' sport_type_' + activity.sport_type}>
+    <li class='link-card'>
+        <div class='full-width'>
+            <h2 class='font-bold'>
+                {activity.name}
+            </h2>
+            <hr />
+            <p>
+                <span class='activity-date'>
+                    {niceDate(new Date(activity.start_date_local))}
+                </span>
+                {activity.sport_type}
+                <br />
+                <!-- Sadly this is not the location of the activity...
+                { activity.location_city + ', ' + activity.location_state + ', ' + activity.location_country }-->
+            </p>
+
+            <div
+                class='grid justify-between grid-cols-1 lg:grid-cols-2 gap-x-4'
+            >
+                <span
+                    >{
+                        'Distance: ' +
+                            Math.round(activity.distance / 10) / 100 +
+                            ' km'
+                    }</span
+                >
+                <span
+                    >{
+                        'Elevation Gain: ' +
+                            activity.total_elevation_gain +
+                            ' m'
+                    }</span
+                >
+                <span
+                    >{
+                        'Speed: ' +
+                            Math.round(activity.average_speed * 360) / 100 +
+                            ' km/h'
+                    }</span
+                >
+                <span>{'Moving Time: ' + formatTime(activity.moving_time)}</span
+                >
+            </div>
+            <hr />
+            <div class='flex justify-between'>
+                <StravaLink
+                    href={'activities/' + activity.id}
+                    title={activity.name}
+                />
+                {
+                    havePolyline && !imported && (
+                        <ImportButton
+                            activityId={activity.id}
+                            name={activity.name}
+                            user={user}
+                            activityEnabled={activityEnabled}
+                        />
+                    )
+                }
+                {
+                    imported && (
+                        <a href={'/activity/' + activity.id}>
+                            <button>View</button>
+                        </a>
+                    )
+                }
+            </div>
+            <hr class='pb-0 !mb-0' />
+            <div class='activity-map-div'>
+                {
+                    havePolyline && (
+                        <>
+                            <div class='map-expand-div cursor-pointer flex justify-center'>
+                                <span class='-mt-1 map-expand-icon'>&or;</span>
+                            </div>
+                            <div
+                                class='h-[250px] mb-2 hidden map-div'
+                                data-map-polyline={JSON.stringify(
+                                    activity.map.summary_polyline
+                                )}
+                            />
+                        </>
+                    )
+                }
+            </div>
+        </div>
+    </li>
+</div>
+
+<style>
+    .full-width {
+        width: 100%;
+    }
+    .flex-list {
+        display: flex;
+        justify-content: space-between;
+    }
+    .activity-date {
+        float: right;
+        color: gray;
+    }
+    hr {
+        margin-top: 6px;
+        margin-bottom: 6px;
+    }
+    .link-card {
+        list-style: none;
+        display: block;
+        width: 100%;
+        padding: calc(1rem - 1px);
+        padding-bottom: 1px;
+        background-color: var(--accent-light-green);
+        border-radius: 7px;
+        border: 1px solid black;
+        text-decoration: none;
+        line-height: 1.4;
+    }
+    .peak-elevation {
+        float: right;
+    }
+    .peak-list {
+        padding: 0px;
+        margin: 0px;
+        margin-left: 35px;
+    }
+    .peak-list-item {
+        list-style-type: '⛰️ ';
+        padding-top: 2px;
+        padding-bottom: 2px;
+    }
+    h2 {
+        margin: 0;
+        font-size: 1.25rem;
+    }
+    hr,
+    span {
+        color: green;
+    }
+    /*
+    a {
+        text-decoration: underline;
+        text-decoration-color: green;
+    }
+     */
+    p {
+        margin-top: 0.5rem;
+        margin-bottom: 0;
+    }
+    .link-card:is(:hover, :focus-within) {
+        box-shadow: 0 0 14px rgba(0, 0, 0, 0.1);
+    }
+</style>

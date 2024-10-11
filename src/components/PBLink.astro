@@ -1,0 +1,21 @@
+---
+import ExternalLinkIcon from './ExternalLinkIcon.astro';
+const { href, text, ...props } = Astro.props;
+var linkText = text ? text : 'Peakbagger.com';
+---
+
+<style>
+    a {
+        @apply font-normal;
+    }
+</style>
+
+<!--
+    Try to ensure there is no whitespace after the <slot/> so that punctuation
+    after this component is properly placed.
+-->
+<a
+    href={'https://peakbagger.com/' + (href ? href : '')}
+    {...props}
+    target='_blank'>{linkText}</a
+><ExternalLinkIcon /><slot />

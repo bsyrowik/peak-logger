@@ -1,0 +1,459 @@
+---
+import ExternalLinkIcon from '../../components/ExternalLinkIcon.astro';
+import StravaLink from '../../components/StravaLink.astro';
+import RemoveButton from '../../components/buttons/RemoveButton.astro';
+import Layout from '../../layouts/Layout.astro';
+import { serializeUser } from '@util/db';
+import { getElevationInUserUnitsFromFeet } from '@util/core';
+import { niceDate } from '@util/util';
+
+import {
+    getStravaActivity,
+    getSummitedPeaksForActivities,
+    getNearbyPeaksForActivity,
+} from '@util/db';
+import type { ActivityEntry, PeakEntry } from '@util/db';
+import ReanalyzeButton from 'src/components/buttons/ReanalyzeButton.astro';
+import LogAscentButton from 'src/components/buttons/LogAscentButton.astro';
+import DeleteActivityButton from 'src/components/buttons/DeleteActivityButton.astro';
+
+if (!Astro.locals.user) {
+    // Not logged in - go to main page
+    return Astro.redirect('/about');
+}
+
+const stravaUserId = Astro.locals.user.strava_id ?? 0;
+const haveStrava = Astro.locals.user.strava_refresh_token !== null;
+const { activityId } = Astro.params;
+
+const activity: ActivityEntry | null = await getStravaActivity(
+    Number(stravaUserId),
+    Number(activityId)
+);
+if (!activity) {
+    return Astro.redirect('/404');
+}
+
+var summitedPeaksDict: { [activityId: number]: PeakEntry[] } =
+    await getSummitedPeaksForActivities([activity]);
+const summitedPeaks = summitedPeaksDict[activity.id];
+
+var nearbyPeaks: PeakEntry[] = await getNearbyPeaksForActivity(activity);
+---
+
+<link
+    href='https://unpkg.com/maplibre-gl@^4.7.1/dist/maplibre-gl.css'
+    rel='stylesheet'
+/>
+<script
+    is:inline
+    type='text/javascript'
+    src='https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js'></script>
+<script
+    is:inline
+    type='text/javascript'
+    src='https://unpkg.com/maplibre-contour@0.0.5/dist/index.min.js'></script>
+<script
+    is:inline
+    type='text/javascript'
+    id='maplibregljs'
+    src='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js'></script>
+<script src='./map.ts'></script>
+
+<Layout title='Peak Logger'>
+    <div class='hidden md:block'>
+        <div class='flex-box'>
+            <a href='/recent'><button>&lt; Back</button></a>
+            <h1>{activity.name}</h1>
+            <StravaLink href={'activities/' + activity.id} />
+        </div>
+    </div>
+    <div class='block md:hidden'>
+        <div class='flex-box'>
+            <a href='/recent'><button>&lt; Back</button></a>
+            <StravaLink href={'activities/' + activity.id} />
+        </div>
+        <h1>{activity.name}</h1>
+    </div>
+
+    {
+        !haveStrava && (
+            <p>
+                No linked Strava account! Link a Strava account on the{' '}
+                <a href='/account' class='underline'>
+                    Settings page
+                </a>{' '}
+                to see more activity details.
+            </p>
+        )
+    }
+    {
+        !haveStrava && (
+            <div class='flex flex-row justify-between'>
+                <span>{activity.sport_type}</span>
+                <span class='text-gray-400'>
+                    {niceDate(activity.start_date)}
+                </span>
+            </div>
+        )
+    }
+
+    <br />
+
+    <div class='activity-info flex flex-row flex-wrap gap-y-4'></div>
+
+    <br />
+
+    {
+        summitedPeaks && summitedPeaks.length > 0 && (
+            <>
+                <div class='w-full'>
+                    <h2 class='text-xlg font-semibold ml-1 text-frog-600'>
+                        Summited Peaks
+                    </h2>
+                </div>
+                <div class='relative flex flex-col w-full h-full overflow-auto text-gray-700 bg-white shadow-md rounded-xl bg-clip-border'>
+                    <table class='table-auto text-left text-frog-600 w-full min-w-max'>
+                        <thead>
+                            <tr>
+                                <th class='p-2 border-b border-frog-200 bg-frog-50'>
+                                    Name
+                                </th>
+                                <th class='p-2 border-b border-frog-200 bg-frog-50 text-right'>
+                                    Elevation
+                                </th>
+                                <th class='p-2 border-b border-frog-200 bg-frog-50 text-right'>
+                                    Prominence
+                                </th>
+                                <th class='p-2 border-b border-frog-200 bg-frog-50 text-right'>
+                                    Distance
+                                </th>
+                                <th class='p-2 border-b border-frog-200 bg-frog-50 text-right'>
+                                    Logged
+                                </th>
+                                <th class='p-2 border-b border-frog-200 bg-frog-50 text-right'>
+                                    Modify
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {summitedPeaks.map((peak, ndx, summitedPeaks) => (
+                                <tr>
+                                    <td
+                                        class={
+                                            'p-2' +
+                                            (ndx == summitedPeaks.length - 1
+                                                ? ''
+                                                : ' border-b border-frog-200')
+                                        }
+                                    >
+                                        <a
+                                            href={
+                                                'https://www.peakbagger.com/peak.aspx?pid=' +
+                                                peak.id
+                                            }
+                                            target='_blank'
+                                        >
+                                            {peak.name}
+                                        </a>
+                                        <ExternalLinkIcon />
+                                    </td>
+                                    <td
+                                        class={
+                                            'p-2 text-right' +
+                                            (ndx == summitedPeaks.length - 1
+                                                ? ''
+                                                : ' border-b border-frog-200')
+                                        }
+                                    >
+                                        {getElevationInUserUnitsFromFeet(
+                                            Astro.locals.user,
+                                            peak.elevation_feet
+                                        )}
+                                    </td>
+                                    <td
+                                        class={
+                                            'p-2 text-right' +
+                                            (ndx == summitedPeaks.length - 1
+                                                ? ''
+                                                : ' border-b border-frog-200')
+                                        }
+                                    >
+                                        {peak.prominence
+                                            ? getElevationInUserUnitsFromFeet(
+                                                  Astro.locals.user,
+                                                  peak.prominence
+                                              )
+                                            : 'Unknown'}
+                                    </td>
+                                    <td
+                                        class={
+                                            'p-2 text-right' +
+                                            (ndx == summitedPeaks.length - 1
+                                                ? ''
+                                                : ' border-b border-frog-200')
+                                        }
+                                    >
+                                        {activity.summited_peaks && (
+                                            <span>
+                                                {activity.summited_peaks.find(
+                                                    (a) => a.pid === peak.id
+                                                ) ? (
+                                                    <span>
+                                                        {Math.round(
+                                                            Number(
+                                                                activity.summited_peaks.find(
+                                                                    (a) =>
+                                                                        a.pid ===
+                                                                        peak.id
+                                                                )?.dist
+                                                            )
+                                                        ) ?? 0}{' '}
+                                                        m
+                                                    </span>
+                                                ) : (
+                                                    ''
+                                                )}
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td
+                                        class={
+                                            'p-2 text-right' +
+                                            (ndx == summitedPeaks.length - 1
+                                                ? ''
+                                                : ' border-b border-frog-200')
+                                        }
+                                    >
+                                        {activity.logged_ascents && (
+                                            <span>
+                                                {activity.logged_ascents.find(
+                                                    (a) => a.pid === peak.id
+                                                ) ? (
+                                                    <a
+                                                        href={
+                                                            'https://www.peakbagger.com/climber/ascent.aspx?aid=' +
+                                                            (activity.logged_ascents.find(
+                                                                (a) =>
+                                                                    a.pid ===
+                                                                    peak.id
+                                                            )?.aid ?? 0)
+                                                        }
+                                                        target='_blank'
+                                                        class='underline'
+                                                    >
+                                                        <span>&#x2713 Yes</span>
+                                                        <ExternalLinkIcon />
+                                                    </a>
+                                                ) : (
+                                                    'No'
+                                                )}
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td
+                                        class={
+                                            'p-2 text-right' +
+                                            (ndx == nearbyPeaks.length - 1
+                                                ? ''
+                                                : ' border-b border-frog-200')
+                                        }
+                                    >
+                                        <RemoveButton
+                                            user={Astro.locals.user}
+                                            activityId={activity.id}
+                                            peakId={peak.id}
+                                            name={peak.name}
+                                        />
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                <br />
+            </>
+        )
+    }
+
+    {
+        nearbyPeaks && nearbyPeaks.length > 0 && (
+            <>
+                <div class='w-full'>
+                    <h2 class='text-xlg font-semibold ml-1 text-frog-600'>
+                        Nearby Peaks
+                    </h2>
+                </div>
+                <div class='relative flex flex-col w-full h-full overflow-auto text-gray-700 bg-white shadow-md rounded-xl bg-clip-border'>
+                    <table class='table-auto text-left text-frog-600 w-full min-w-max'>
+                        <thead>
+                            <tr>
+                                <th class='p-2 border-b border-frog-200 bg-frog-50'>
+                                    Name
+                                </th>
+                                <th class='p-2 border-b border-frog-200 bg-frog-50 text-right'>
+                                    Elevation
+                                </th>
+                                <th class='p-2 border-b border-frog-200 bg-frog-50 text-right'>
+                                    Prominence
+                                </th>
+                                <th class='p-2 border-b border-frog-200 bg-frog-50 text-right'>
+                                    Distance
+                                </th>
+                                <th class='p-2 border-b border-frog-200 bg-frog-50 text-right'>
+                                    Log Ascent
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {nearbyPeaks.map((peak, ndx, nearbyPeaks) => (
+                                <tr>
+                                    <td
+                                        class={
+                                            'p-2' +
+                                            (ndx == nearbyPeaks.length - 1
+                                                ? ''
+                                                : ' border-b border-frog-200')
+                                        }
+                                    >
+                                        <a
+                                            href={
+                                                'https://www.peakbagger.com/peak.aspx?pid=' +
+                                                peak.id
+                                            }
+                                            target='_blank'
+                                        >
+                                            {peak.name}
+                                        </a>
+                                        <ExternalLinkIcon />
+                                    </td>
+                                    <td
+                                        class={
+                                            'p-2 text-right' +
+                                            (ndx == nearbyPeaks.length - 1
+                                                ? ''
+                                                : ' border-b border-frog-200')
+                                        }
+                                    >
+                                        {getElevationInUserUnitsFromFeet(
+                                            Astro.locals.user,
+                                            peak.elevation_feet
+                                        )}
+                                    </td>
+                                    <td
+                                        class={
+                                            'p-2 text-right' +
+                                            (ndx == nearbyPeaks.length - 1
+                                                ? ''
+                                                : ' border-b border-frog-200')
+                                        }
+                                    >
+                                        {peak.prominence
+                                            ? getElevationInUserUnitsFromFeet(
+                                                  Astro.locals.user,
+                                                  peak.prominence
+                                              )
+                                            : 'Unknown'}
+                                    </td>
+                                    <td
+                                        class={
+                                            'p-2 text-right' +
+                                            (ndx == nearbyPeaks.length - 1
+                                                ? ''
+                                                : ' border-b border-frog-200')
+                                        }
+                                    >
+                                        {activity.nearby_peaks && (
+                                            <span>
+                                                {activity.nearby_peaks.find(
+                                                    (a) => a.pid === peak.id
+                                                ) ? (
+                                                    <span>
+                                                        {Math.round(
+                                                            Number(
+                                                                activity.nearby_peaks.find(
+                                                                    (a) =>
+                                                                        a.pid ===
+                                                                        peak.id
+                                                                )?.dist
+                                                            )
+                                                        ) ?? 0}{' '}
+                                                        m
+                                                    </span>
+                                                ) : (
+                                                    ''
+                                                )}
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td
+                                        class={
+                                            'p-2 text-right' +
+                                            (ndx == nearbyPeaks.length - 1
+                                                ? ''
+                                                : ' border-b border-frog-200')
+                                        }
+                                    >
+                                        <LogAscentButton
+                                            user={Astro.locals.user}
+                                            peakId={peak.id}
+                                            name={peak.name}
+                                            activityId={activityId}
+                                            startDate={activity.start_date.valueOf()}
+                                        />
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                <br />
+            </>
+        )
+    }
+
+    <div
+        id='activity-map'
+        data-stravaId={activityId}
+        data-user={serializeUser(Astro.locals.user)}
+        data-summitedpeaks={JSON.stringify(summitedPeaks)}
+        data-nearbypeaks={JSON.stringify(nearbyPeaks)}
+    >
+    </div>
+
+    <div class='mt-2 flex justify-between'>
+        <DeleteActivityButton
+            name={activity.name}
+            activityId={activity.id}
+            user={Astro.locals.user}
+        />
+        <button class='re-center-map'>Re-Center Map</button>
+        {
+            haveStrava && (
+                <ReanalyzeButton
+                    name={activity.name}
+                    activityId={activity.id}
+                    user={Astro.locals.user}
+                />
+            )
+        }
+    </div>
+
+    <style>
+        .flex-box {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        div[id='activity-map'] {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border: 1px solid green;
+        }
+        /*
+    table.activity-info td {
+        @apply p-2 border-b;
+    }
+     */
+    </style>
+</Layout>

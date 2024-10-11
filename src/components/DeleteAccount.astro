@@ -1,0 +1,12 @@
+---
+import { actions } from 'astro:actions';
+---
+
+<form
+    method='POST'
+    action={'/' + actions.account.deleteAccount}
+    name='delete-account'
+    onsubmit="return confirm('Are you sure you want to delete your account and all associated data?')"
+>
+    <button>Delete Account</button>
+</form>

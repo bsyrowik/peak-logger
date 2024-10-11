@@ -1,0 +1,35 @@
+---
+import LandingPage from '../../../layouts/LandingPage.astro';
+import StravaLink from '../../../components/StravaLink.astro';
+---
+
+<LandingPage title='Peak Logger'>
+    <div style='height: 100px;'></div>
+    <div class='content'>
+        <h2>Error!</h2>
+
+        In order for this applicaiton to work propery you need to enable the
+        following permissions when logging in to <StravaLink text='Strava' />.
+
+        <br />
+        <br />
+        <hr />
+
+        <input type='checkbox' checked /> View data about your activities
+    </div>
+    <br />
+    <input type='checkbox' checked /> Upload your activities from Peak Logger to
+    Strava</LandingPage
+>
+
+<hr />
+<br />
+
+<h3>Try Again:</h3>
+
+<a href='/login/strava?mode=register'>
+    <img
+        style='display:block;margin-left:auto;margin-right:auto;'
+        src='/btn_strava_connectwith_orange@2x.png'
+    />
+</a>

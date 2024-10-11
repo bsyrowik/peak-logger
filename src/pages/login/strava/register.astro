@@ -1,0 +1,35 @@
+---
+import LandingPage from '../../../layouts/LandingPage.astro';
+import StravaLink from '../../..//components/StravaLink.astro';
+import PeakLogger from '../../..//components/PeakLogger.astro';
+---
+
+<LandingPage title='Peak Logger'>
+    <div class='content'>
+        <h2>Register for Peak Logger</h2>
+
+        <br />
+
+        <p>
+            Register for <PeakLogger /> by signing in with your
+            <StravaLink text='Strava' /> account. The requested permissions are required
+            for <PeakLogger /> to operate properly.
+        </p>
+
+        <br />
+
+        <p>
+            Hint: Make sure to sign in to Strava with the account you want to
+            use with <PeakLogger />!
+        </p>
+
+        <br />
+    </div>
+
+    <a href='/login/strava?mode=register' data-astro-prefetch='false'>
+        <img
+            style='display:block;margin-left:auto;margin-right:auto;'
+            src='/btn_strava_connectwith_orange@2x.png'
+        />
+    </a>
+</LandingPage>

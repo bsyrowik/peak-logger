@@ -1,0 +1,31 @@
+---
+const { href } = Astro.props;
+---
+
+<h2>
+    <a href={href}>
+        <img class='inline' src='/web-app-manifest-192x192.png' />
+        Peak Logger
+    </a>
+</h2>
+
+<style>
+    img {
+        max-height: 30px;
+    }
+    h2 {
+        margin: 0;
+        font-size: 1.8em;
+    }
+
+    a,
+    a.active {
+        text-decoration: none;
+    }
+    a {
+        padding: 0.7em 0.5em;
+        color: green;
+        border-bottom: 5px solid transparent;
+        text-decoration: none;
+    }
+</style>

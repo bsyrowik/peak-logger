@@ -1,0 +1,219 @@
+---
+import HeaderLink from './HeaderLink.astro';
+import HeaderTitle from './HeaderTitle.astro';
+
+const { name } = Astro.props;
+
+const logoutCmd = 'logout(); return false;';
+---
+
+<script src='./logout.mts'></script>
+
+<header>
+    <nav>
+        <div class='pl-2 flex md:hidden'>
+            <div class='w-full max-w-3xl mx-auto relative'>
+                <button
+                    class='menu-toggle w-8 h-8 -ml-1 flex items-center justify-center relative z-30'
+                    aria-label='Open Menu'
+                    aria-expanded='false'
+                    aria-controls='menu-items'
+                >
+                    <span class='menu-toggle-icon w-6 h-px relative bg-current'
+                    ></span>
+                </button>
+            </div>
+            <ul id='menu-items' class='menu flex gap-6'>
+                <li class='py-1'>
+                    <HeaderLink href='/recent' text='Recent' />
+                </li>
+                <li class='py-1'>
+                    <HeaderLink href='/import' text='Import' />
+                </li>
+                <li class='py-1'>
+                    <HeaderLink href='/account' text='Settings' />
+                </li>
+                <li class='py-1'>
+                    <HeaderLink
+                        href='#'
+                        onclick={logoutCmd}
+                        data-astro-prefetch='false'
+                        text='Sign Out'
+                    />
+                </li>
+            </ul>
+        </div>
+        <div class='md:basis-[30%] my-3'>
+            <HeaderTitle href='/recent' />
+        </div>
+        <div class='md:basis-[30%] hidden md:flex md:justify-center'>
+            <HeaderLink href='/recent' text='Recent' />
+            <HeaderLink href='/import' text='Import' />
+            <HeaderLink href='/account' text='Settings' />
+        </div>
+        <div class='md:basis-[30%] mb-4 text-[green] text-xl'>
+            <div
+                class='hidden md:block float-end m-2 mb-0 menu-toggle2 cursor-pointer'
+                aria-label='Open Menu'
+                aria-expanded='false'
+                aria-controls='menu-items2'
+            >
+                {name}
+                <span class='arrow'>&#x25bc;</span>
+            </div>
+            <ul
+                id='menu-items2'
+                class='hidden md:block menu2 flex gap-6 text-sm'
+            >
+                <li class='py-1'>
+                    <HeaderLink href='/account' text='Settings' />
+                </li>
+                <li class='py-1'>
+                    <HeaderLink
+                        href='#'
+                        onclick={logoutCmd}
+                        data-astro-prefetch='false'
+                        text='Sign Out'
+                    />
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>
+
+<style>
+    header {
+        margin: 0;
+        padding: 0 0;
+        background: white;
+        box-shadow: 0 2px 8px rgba(var(--black), 5%);
+    }
+    nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    nav a {
+        padding: 0.7em 0.5em;
+        color: green;
+        border-bottom: 5px solid transparent;
+        text-decoration: none;
+    }
+    nav a.active {
+        text-decoration: none;
+        border-bottom-color: green;
+    }
+
+    @media (min-width: 767px) {
+        .menu2 {
+            @apply flex-col absolute top-14 right-0 max-w-64 px-3 pt-1 pb-1 z-20 invisible opacity-0;
+        }
+        .menu2 {
+            background: white; /*#e8f3e5;*/
+            border: 1px solid;
+            border-color: green;
+        }
+        .menu2.is-visible {
+            @apply visible opacity-100;
+        }
+    }
+
+    @media (max-width: 767px) {
+        .menu {
+            @apply flex-col gap-1 absolute -top-2.5 -left-2.5 max-w-64 px-3 pt-16 pb-10 z-20 invisible opacity-0;
+            width: calc(100% + 1.25rem);
+        }
+        .menu {
+            background: #e8f3e5;
+            border: 1px solid;
+            border-color: green;
+        }
+        .menu.is-visible {
+            @apply visible opacity-100;
+            transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0.2s;
+        }
+        .menu-toggle-icon {
+            transition: width 0.1s cubic-bezier(0.4, 0, 0.2, 1) 0.3s;
+        }
+        .menu-toggle.is-active .menu-toggle-icon {
+            @apply w-0;
+            transition: width 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .menu-toggle-icon:before,
+        .menu-toggle-icon:after {
+            @apply w-6 h-px absolute left-1/2 top-0 origin-center -translate-x-1/2 bg-current;
+            content: '';
+            transition:
+                transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                margin 0.2s cubic-bezier(0.4, 0, 0.2, 1) 0.2s;
+        }
+        .menu-toggle-icon:before {
+            @apply -mt-1.5;
+        }
+        .menu-toggle-icon:after {
+            @apply mt-1.5;
+        }
+        .menu-toggle.is-active .menu-toggle-icon:before,
+        .menu-toggle.is-active .menu-toggle-icon:after {
+            @apply mt-0;
+            transition:
+                margin 0.2s cubic-bezier(0.4, 0, 0.2, 1) 0.1s,
+                transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) 0.3s;
+        }
+        .menu-toggle.is-active .menu-toggle-icon:before {
+            @apply rotate-45;
+        }
+        .menu-toggle.is-active .menu-toggle-icon:after {
+            @apply -rotate-45;
+        }
+    }
+</style>
+
+<script>
+    function menuToggle() {
+        const menu = document.querySelector('.menu');
+        const menuToggleBtn = document.querySelector('.menu-toggle');
+        menuToggleBtn?.addEventListener('click', () => {
+            const isMenuExpanded =
+                menuToggleBtn.getAttribute('aria-expanded') === 'true';
+            menuToggleBtn.classList.toggle('is-active');
+            menuToggleBtn.setAttribute(
+                'aria-expanded',
+                isMenuExpanded ? 'false' : 'true'
+            );
+            menuToggleBtn.setAttribute(
+                'aria-label',
+                isMenuExpanded ? 'Open Menu' : 'Close Menu'
+            );
+            menu?.classList.toggle('is-visible');
+        });
+    }
+    menuToggle();
+    document.addEventListener('astro:after-swap', menuToggle);
+
+    function menu2Toggle() {
+        const menu = document.querySelector('.menu2');
+        const menuToggleBtn = document.querySelector('.menu-toggle2');
+        const menuToggleBtnArrow = document.querySelector('.arrow');
+        menuToggleBtn?.addEventListener('click', () => {
+            const isMenuExpanded =
+                menuToggleBtn.getAttribute('aria-expanded') === 'true';
+            menuToggleBtn.classList.toggle('is-active');
+            menuToggleBtn.setAttribute(
+                'aria-expanded',
+                isMenuExpanded ? 'false' : 'true'
+            );
+            menuToggleBtn.setAttribute(
+                'aria-label',
+                isMenuExpanded ? 'Open Menu' : 'Close Menu'
+            );
+            menuToggleBtnArrow &&
+                (menuToggleBtnArrow.innerHTML = isMenuExpanded
+                    ? '&#x25bc;'
+                    : '&#x25b2;');
+            menu?.classList.toggle('is-visible');
+        });
+    }
+    menu2Toggle();
+    document.addEventListener('astro:after-swap', menu2Toggle);
+</script>

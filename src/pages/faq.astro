@@ -1,0 +1,159 @@
+---
+import LandingPage from '../layouts/LandingPage.astro';
+import StravaLink from '../components/StravaLink.astro';
+import PBLink from '../components/PBLink.astro';
+import PeakLogger from '../components/PeakLogger.astro';
+
+const loggedIn = Astro.locals.hasOwnProperty('user') && Astro.locals.user;
+---
+
+<LandingPage title='Peak Logger'>
+    <div class='content'>
+        <h2>Frequently Asked Questions</h2>
+
+        <h3>Why wasn't my ascent logged?</h3>
+        <p>
+            There are a few possible reasons that a summit attempt was not
+            logged.
+            <ul>
+                <li>
+                    Your activity track wasn't accurate, and didn't record you
+                    achieving the summit.
+                </li>
+                <li>
+                    The detection threshold in your <PeakLogger /> settings was too
+                    small.
+                    {
+                        loggedIn && (
+                            <span>
+                                Visit the <a href='/account'>Settings page</a>.
+                            </span>
+                        )
+                    }
+                    <img src='/peaklogger_settings_detection_radius.png' />
+                </li>
+                <li>
+                    The peak does not exist on <PBLink /> or the location of the
+                    summit on
+                    <PBLink /> is not accurate.
+                </li>
+                <li>
+                    If your activity is marked as 'private' (visibility on
+                    Strava set to 'Only You') it will only be processed if you
+                    authorize <PeakLogger />
+                    to access private activities on the <PeakLogger /> settings page.
+                    {
+                        loggedIn && (
+                            <span>
+                                Visit the <a href='/account'>Settings page</a>.
+                            </span>
+                        )
+                    }
+                </li>
+            </ul>
+
+            If you are able to resolve any of the listed issues, you can have
+            <PeakLogger /> re-analyze your activity to see if the summits you expect
+            are detected.
+        </p>
+
+        <h3>
+            Why don't my summited peaks show up in my Strava activity
+            description?
+        </h3>
+        <p>
+            There are several possible reasons that your ascents didn't show up
+            on
+            <StravaLink text='Strava' />.
+            <ul>
+                <li>
+                    You didn't elect to have your summits logged on
+                    <StravaLink text='Strava' /> on the <PeakLogger /> settings page.
+
+                    {
+                        loggedIn && (
+                            <span>
+                                Visit the <a href='/account'>Settings page</a>.
+                            </span>
+                        )
+                    }
+
+                    <img src='/peaklogger_settings_update_strava.png' />
+                </li>
+                <li>
+                    You were updating your <StravaLink text='Strava' /> activity
+                    description when <PeakLogger /> attempted to update your activity.
+                    Try re-analyzing your activity on <PeakLogger />.
+                </li>
+            </ul>
+        </p>
+
+        <h3>Why wasn't my ascent logged on Peakbagger.com?</h3>
+        <p>
+            There are several possible reasons that your ascent wasn't logged on <PBLink
+            />.
+            <ul>
+                <li>
+                    You didn't save your <PBLink /> log-in information on the
+                    <PeakLogger /> settings page.
+
+                    {
+                        loggedIn && (
+                            <span>
+                                Visit the <a href='/account'>Settings page</a>.
+                            </span>
+                        )
+                    }
+                </li>
+                <li>
+                    You already logged an ascent of the summit in question on
+                    the day of the activity.
+                </li>
+                <li>
+                    You didn't elect to have your summits logged on <PBLink /> on
+                    the
+                    <PeakLogger /> settings page.
+
+                    {
+                        loggedIn && (
+                            <span>
+                                Visit the <a href='/account'>Settings page</a>.
+                            </span>
+                        )
+                    }
+
+                    <img src='/peaklogger_settings_post_to_pb.png' />
+                </li>
+            </ul>
+        </p>
+
+        <h3>What personal information does Peak Logger collect?</h3>
+        <p>
+            <PeakLogger /> collects the minimum information possible. See the <PeakLogger
+            />
+            <a href='/privacy'>privacy policy</a>.
+        </p>
+
+        <h3>Are all activities I post on Strava analyzed?</h3>
+        <p>
+            No. Only activities that involve some type of locomotion can be
+            analyzed. From those activities, you can select which activity types
+            are analyzed by
+            <PeakLogger /> on your account
+            {loggedIn && <a href='/account'>Settings page</a>}
+            {!loggedIn && <span>Settings page</span>}
+            .
+
+            <img src='/activity_select.png' />
+        </p>
+
+        <h3>How much does Peak Logger cost?</h3>
+        <p>
+            <PeakLogger /> is completely free to use. If you enjoy using <PeakLogger
+            /> you can express your appreciation by <a
+                href='https://www.paypal.com/donate/?business=3US86NQSGARBS&no_recurring=0&currency_code=CAD'
+                >buying me a coffee</a
+            > (via PayPal).
+        </p>
+    </div>
+</LandingPage>

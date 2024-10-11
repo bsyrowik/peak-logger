@@ -1,0 +1,78 @@
+---
+import LandingPage from '../layouts/LandingPage.astro';
+import PeakLogger from '../components/PeakLogger.astro';
+---
+
+<script>
+    import { actions } from 'astro:actions';
+
+    document.addEventListener('astro:page-load', () => {
+        const form: HTMLFormElement =
+            document.querySelector('form.contact-form')!;
+        form?.addEventListener('submit', async (event) => {
+            console.log('attempting to submit form....');
+            event.preventDefault();
+            const formData = new FormData(form);
+            const { error } = await actions.contactForm(formData);
+            if (error) {
+                console.log(error);
+                alert('Error!');
+            } else {
+                alert('Done.  Thank you for your message.');
+                location.replace('/');
+            }
+        });
+    });
+</script>
+
+<LandingPage title='Peak Logger'>
+    <div class='content'>
+        <h2>Contact</h2>
+
+        <div class='flex justify-center'>
+            <div class='max-w-[600px]'>
+                <p class='my-4'>
+                    Please use the following form to provide any feedback about <PeakLogger
+                    /> or to report issues. Replies will be provided on a best-effort
+                    basis.
+                </p>
+
+                <br />
+
+                <form class='contact-form'>
+                    <label for='name'>Name:</label>
+                    <br />
+                    <input
+                        transition:persist
+                        required
+                        type='text'
+                        name='name'
+                        class='border mb-4'
+                    />
+                    <br />
+                    <label for='email'>Email:</label>
+                    <br />
+                    <input
+                        transition:persist
+                        required
+                        type='email'
+                        name='email'
+                        class='border mb-4'
+                    />
+                    <br />
+                    <label for='message'>Message:</label>
+                    <br />
+                    <textarea
+                        transition:persist
+                        required
+                        rows='4'
+                        name='message'
+                        class='border resize max-w-[600px] w-full'></textarea>
+                    <br />
+                    <br />
+                    <button>Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</LandingPage>

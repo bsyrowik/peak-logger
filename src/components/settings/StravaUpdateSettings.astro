@@ -1,0 +1,30 @@
+---
+import type { User } from '@util/db';
+
+import { StravaUpdateDescriptionName } from 'src/consts';
+
+interface Props {
+    user: User;
+}
+const { user } = Astro.props;
+
+const updateDescription = user.strava_update_description;
+---
+
+<input
+    class='checkbox-style'
+    id={StravaUpdateDescriptionName}
+    name={StravaUpdateDescriptionName}
+    type='checkbox'
+    checked={updateDescription ? true : undefined}
+/>
+<label for={StravaUpdateDescriptionName}
+    >Update Strava activity description with list of summited peaks.</label
+>
+<br />
+
+<style>
+    label {
+        @apply text-black;
+    }
+</style>

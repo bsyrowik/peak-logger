@@ -1,0 +1,75 @@
+---
+import Popup from './Popup.astro';
+import StravaUpdateSettings from '../settings/StravaUpdateSettings.astro';
+import PBAddSettings from '../settings/PBAddSettings.astro';
+import DetectionRadiusSetting from '../settings/DetectionRadiusSetting.astro';
+
+const { activityId, name, user, activityEnabled } = Astro.props;
+---
+
+<Popup
+    id={activityId}
+    user={user}
+    buttonName='Import'
+    title={"Import activity '" + name + "'"}
+    action='importActivityAction'
+    data-activity-id={activityId}
+    activityEnabled={activityEnabled}
+>
+    <Fragment slot='form-contents'>
+        <StravaUpdateSettings user={user} />
+        <PBAddSettings user={user} />
+        <DetectionRadiusSetting user={user} />
+    </Fragment>
+    <Fragment slot='go-buttons'>
+        <div>
+            <button
+                class='import-and-view'
+                type='submit'
+                form={'popup-' + activityId + '-Import-form'}
+                >Import & View</button
+            >
+            <button
+                class='import'
+                type='submit'
+                form={'popup-' + activityId + '-Import-form'}>Import</button
+            >
+        </div>
+    </Fragment>
+</Popup>
+
+<script>
+    import { importActivity } from '@util/core';
+    import { type User } from '@util/db';
+
+    declare global {
+        interface Window {
+            importActivityAction: any;
+        }
+    }
+
+    window.importActivityAction = async function (
+        user: User,
+        dataset: DOMStringMap,
+        formData: FormData,
+        submitter: HTMLElement
+    ) {
+        if (!dataset.activityId) return;
+        const activityId = Number(dataset.activityId);
+        console.log('attempting to submit form...', activityId, user);
+        const success = await importActivity(user, activityId, formData);
+        if (!success) {
+            alert('Not successful');
+        }
+        if (
+            submitter &&
+            (submitter as unknown as HTMLButtonElement).classList.contains(
+                'import-and-view'
+            )
+        ) {
+            return () => location.replace('/activity/' + activityId);
+        } else {
+            return () => location.reload();
+        }
+    };
+</script>

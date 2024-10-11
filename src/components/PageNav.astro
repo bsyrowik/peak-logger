@@ -1,0 +1,64 @@
+---
+interface Props {
+    href: string;
+    page: number;
+    mayBeAnotherPage: boolean;
+}
+
+const { href, page, mayBeAnotherPage } = Astro.props;
+const showPageWord = false;
+---
+
+<div class='page-nav'>
+    {showPageWord && 'Page'}
+    <div class='flex-container'>
+        <a
+            href={href + 'page=' + (page - 1)}
+            class={page > 1 ? '' : 'disabled-link'}
+            ><span class='page-nav-button'>&lt;</span></a
+        >
+        <span class='page-number-span'>
+            {page}
+        </span>
+        <a
+            href={href + 'page=' + (page + 1)}
+            class={mayBeAnotherPage ? '' : 'disabled-link'}
+            ><span class='page-nav-button'>&gt;</span></a
+        >
+    </div>
+</div>
+
+<style>
+    a {
+        text-decoration: none;
+        color: green;
+    }
+    .disabled-link {
+        pointer-events: none;
+        cursor: default;
+        color: gray;
+    }
+    .page-number-span {
+        width: 1.3em;
+    }
+    .page-nav {
+        margin-top: 1em;
+        text-align: center;
+    }
+    .flex-container {
+        margin-top: -10px;
+        max-width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+        display: flex;
+        align-items: center;
+        font-size: 1.2em;
+    }
+    .page-nav-button {
+        font-weight: bold;
+        font-size: 2em;
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-bottom: 10px;
+    }
+</style>

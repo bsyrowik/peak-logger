@@ -1,0 +1,131 @@
+---
+import PopupWindow from './PopupWindow.astro';
+import Spinner from './Spinner.astro';
+
+import '../../styles/checkbox.css';
+import { serializeUser } from '@util/db';
+
+const {
+    id,
+    user,
+    buttonName,
+    title,
+    action,
+    activityEnabled = true,
+    ...data
+} = Astro.props;
+const uniqueId = id + '-' + buttonName.replace(/[^a-z0-9_-]/gi, '-');
+---
+
+<my-popup action={action} {...data}>
+    <button class='open-popup'>
+        {buttonName}
+    </button>
+
+    <PopupWindow class='popup-container'>
+        <h2 class='text-center'>{title}</h2>
+        {
+            !activityEnabled && (
+                <span class='text-red-600'>
+                    Activity type not enabled on settings page!
+                </span>
+            )
+        }
+        <form
+            class='text-left text-block popup-form'
+            id={'popup-' + uniqueId + '-form'}
+            data-user={serializeUser(user)}
+        >
+            <slot name='form-contents' />
+        </form>
+        <div class='flex justify-between'>
+            <button class='cancel-popup'>Cancel</button>
+            <span class='hidden working-indicator'
+                >Working... &nbsp; <Spinner />
+            </span>
+            <slot name='go-buttons'>
+                <button type='submit' form={'popup-' + uniqueId + '-form'}
+                    >Go</button
+                >
+            </slot>
+        </div>
+    </PopupWindow>
+</my-popup>
+
+<script>
+    import { deserializeUser } from '@util/db';
+
+    class MyPopup extends HTMLElement {
+        constructor() {
+            super();
+        }
+
+        connectedCallback() {
+            const invokeButton = this.querySelector('button.open-popup');
+            invokeButton?.addEventListener('click', () => {
+                this.querySelectorAll<HTMLDivElement>(
+                    'div.popup-container'
+                ).forEach((d) => {
+                    d.classList.remove('hidden');
+                });
+            });
+
+            const cancelButton = this.querySelector('button.cancel-popup');
+            cancelButton?.addEventListener('click', () => {
+                this.querySelectorAll<HTMLDivElement>(
+                    'div.popup-container'
+                ).forEach((d) => {
+                    d.classList.add('hidden');
+                });
+            });
+
+            this.querySelectorAll<HTMLFormElement>('form.popup-form').forEach(
+                (form) => {
+                    form.addEventListener('submit', async (event) => {
+                        event.preventDefault();
+
+                        if (!form.dataset.user) return;
+                        const user = deserializeUser(form.dataset.user);
+
+                        const formData = new FormData(form);
+
+                        const spinner = form.parentElement?.querySelector(
+                            'span.working-indicator'
+                        );
+                        spinner?.classList.remove('hidden');
+
+                        const button =
+                            form.parentElement?.querySelector<HTMLButtonElement>(
+                                'button[type="submit"]'
+                            );
+                        if (button) {
+                            button.classList.add(
+                                'hover:bg-gray-300',
+                                'bg-gray-300'
+                            );
+                            button.disabled = true;
+                        }
+
+                        const action = this.getAttribute('action');
+                        const wrap = (body: string) =>
+                            '{ return ' + body + ' };';
+                        const actionFunction = new Function(wrap(action!));
+                        const ret = await actionFunction
+                            .call(null)
+                            .call(
+                                null,
+                                user,
+                                this.dataset,
+                                formData,
+                                event.submitter
+                            );
+
+                        ret();
+                    });
+                }
+            );
+        }
+    }
+
+    customElements.define('my-popup', MyPopup);
+</script>

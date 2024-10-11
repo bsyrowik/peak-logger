@@ -1,0 +1,16 @@
+---
+const { class: className } = Astro.props;
+---
+
+<div
+    class:list={[
+        className,
+        'hidden text-left fixed top-1/4 md:top-1/4 inset-x-1 mx-2 w-[calc(100% - 2rem)] z-[10000]',
+    ]}
+>
+    <div
+        class='p-3 bg-frog-50 border-4 border-frog-600 rounded-xl max-w-[600px] shadow-xl float m-auto'
+    >
+        <slot />
+    </div>
+</div>

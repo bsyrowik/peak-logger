@@ -1,0 +1,27 @@
+---
+import { ActivityType, prettyName } from '@util/activity';
+import { Bitfield } from '@util/bitfield';
+import '../styles/checkbox.css';
+
+interface Props {
+    type: number;
+    activities: number;
+}
+
+const { type, activities } = Astro.props;
+const activity_bf = new Bitfield(activities);
+const checked = activity_bf.get(type) ? true : undefined;
+const name = ActivityType[type];
+const niceName = prettyName(name);
+---
+
+<div>
+    <input
+        class='checkbox-style'
+        id={'at_' + name}
+        name={name}
+        type='checkbox'
+        checked={checked}
+    />
+    <label for={'at_' + name}>{niceName}</label>
+</div>

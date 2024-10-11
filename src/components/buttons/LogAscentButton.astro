@@ -1,0 +1,60 @@
+---
+import Popup from './Popup.astro';
+import PBAddSettings from '../settings/PBAddSettings.astro';
+import StravaUpdateSettings from '../settings/StravaUpdateSettings.astro';
+
+const { activityId, peakId, name, user, startDate } = Astro.props;
+---
+
+<Popup
+    id={peakId}
+    user={user}
+    buttonName='Log Ascent'
+    title={'Add Ascent of ' + name}
+    action='logAscentAction'
+    data-peak-id={peakId}
+    data-activity-id={activityId}
+    data-utc-date={startDate}
+>
+    <Fragment slot='form-contents'>
+        <StravaUpdateSettings user={user} />
+        <PBAddSettings user={user} />
+    </Fragment>
+</Popup>
+
+<script>
+    import { addSummitToActivity } from '@util/core';
+    import { type User } from '@util/db';
+
+    declare global {
+        interface Window {
+            logAscentAction: any;
+        }
+    }
+
+    window.logAscentAction = async function (
+        user: User,
+        dataset: DOMStringMap,
+        formData: FormData
+    ) {
+        if (!dataset.peakId) return;
+        if (!dataset.activityId) return;
+        if (!dataset.utcDate) return;
+        const peakId = Number(dataset.peakId);
+        const activityId = Number(dataset.activityId);
+        const utcDate = Number(dataset.utcDate);
+        console.log('attempting to submit form...', user, activityId, peakId);
+
+        const success = await addSummitToActivity(
+            user,
+            activityId,
+            peakId,
+            utcDate,
+            formData
+        );
+        if (!success) {
+            return () => alert('Not successful');
+        }
+        return () => location.reload();
+    };
+</script>

@@ -1,0 +1,147 @@
+---
+import type { ActivityEntry, PeakEntry } from '@util/db';
+import { getElevationInUserUnitsFromFeet } from '@util/core';
+import { niceDate } from '@util/util';
+
+interface Props {
+    activity: ActivityEntry;
+    summitedPeaks: PeakEntry[];
+}
+
+const { activity, summitedPeaks } = Astro.props;
+if (summitedPeaks && summitedPeaks.length > 0) {
+    summitedPeaks.sort(
+        (a: PeakEntry, b: PeakEntry) => b.elevation_feet - a.elevation_feet
+    );
+}
+
+// Map settings
+const username = 'mapbox';
+const access_token =
+    'pk.eyJ1IjoiYmFpbnN0ZXIiLCJhIjoiY20yenQ4cnQ1MGZhazJqcHp0djNiMmw0YiJ9.idLVYJm1M_JoqQyVsgF56Q';
+const width = 450;
+const height = 250;
+const style = 'outdoors-v12';
+const path_weight = '3';
+const path_color = '090';
+const path_opacity = '1';
+var polyline: string = '';
+var pins = '';
+if (activity.summary_polyline) {
+    polyline = encodeURIComponent(activity.summary_polyline);
+}
+if (summitedPeaks && summitedPeaks.length > 0) {
+    summitedPeaks.forEach((peak) => {
+        pins += `,pin-s-mountain+497b3e(${peak.lon},${peak.lat})`;
+    });
+}
+---
+
+<li class='link-card'>
+    <a href={'/activity/' + activity.id}>
+        <div class='full-width'>
+            <h2 class='font-bold'>
+                {activity.name}
+            </h2>
+            <hr />
+            <p>
+                <span class='activity-date'>
+                    {niceDate(activity.start_date)}
+                </span>
+                {activity.sport_type}
+            </p>
+            {
+                activity.summary_polyline && (
+                    <img
+                        class='w-full max-w-[450px]'
+                        src={`https://api.mapbox.com/styles/v1/${username}/${style}/static/path-${path_weight}+${path_color}-${path_opacity}(${polyline})${pins}/auto/${width}x${height}?access_token=${access_token}`}
+                    />
+                )
+            }
+            <p>
+                {
+                    summitedPeaks && summitedPeaks.length > 0 && (
+                        <div class='grid grid-cols-1'>
+                            {summitedPeaks.map((peak) => (
+                                <div class='flex justify-between py-0.5'>
+                                    <span>
+                                        &#x26F0;&#xFE0F;
+                                        {peak.name}
+                                    </span>
+                                    <span>
+                                        {getElevationInUserUnitsFromFeet(
+                                            Astro.locals.user,
+                                            peak.elevation_feet
+                                        )}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    )
+                }
+            </p>
+        </div>
+    </a>
+</li>
+<style>
+    .flex-display {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .full-width {
+        width: 100%;
+    }
+    .activity-date {
+        float: right;
+        color: gray;
+    }
+    hr {
+        margin-top: 6px;
+        margin-bottom: 6px;
+    }
+    .link-card {
+        list-style: none;
+        display: flex;
+        width: 100%;
+        padding: calc(1rem - 1px);
+        background-color: var(--accent-light-green);
+        border-radius: 7px;
+        border: 1px solid black;
+        text-decoration: none;
+        line-height: 1.4;
+    }
+    .peak-elevation {
+        float: right;
+    }
+    .peak-list {
+        padding: 0px;
+        margin: 0px;
+        margin-left: 35px;
+    }
+    .peak-list-item {
+        list-style-type: '⛰️ ';
+        padding-top: 2px;
+        padding-bottom: 2px;
+    }
+    h2 {
+        margin: 0;
+        font-size: 1.25rem;
+    }
+    hr,
+    span,
+    a {
+        color: green;
+    }
+    a {
+        text-decoration: none;
+        text-decoration-color: green;
+    }
+    p {
+        margin-top: 0.5rem;
+        margin-bottom: 0;
+    }
+    .link-card:is(:hover, :focus-within) {
+        box-shadow: 0 0 14px rgba(0, 0, 0, 0.1);
+    }
+</style>

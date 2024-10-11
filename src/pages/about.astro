@@ -1,0 +1,116 @@
+---
+import LandingPage from '../layouts/LandingPage.astro';
+import StravaLink from '../components/StravaLink.astro';
+import PBLink from '../components/PBLink.astro';
+import PeakLogger from '../components/PeakLogger.astro';
+
+const loggedIn = Astro.locals.hasOwnProperty('user') && Astro.locals.user;
+---
+
+<LandingPage title='Peak Logger'>
+    <div class='content'>
+        <h2>Automate Your Peak Bagging!</h2>
+
+        <p>
+            Auto-detect summited peaks on <StravaLink text='Strava' /> activities
+            and log them to <PBLink />!
+        </p>
+
+        <hr />
+
+        {
+            !loggedIn && (
+                <>
+                    <div class='login-div'>
+                        <div>
+                            Returning user?
+                            <br />
+                            <a
+                                href='/login/strava?mode=login'
+                                data-astro-prefetch='false'
+                            >
+                                <button class='light-button'>Log In</button>
+                            </a>
+                        </div>
+
+                        <div>
+                            New user?
+                            <br />
+                            <a href='/login/strava/register'>
+                                <button class='dark-button'>Sign Up</button>
+                            </a>
+                        </div>
+                    </div>
+                    <hr />
+                </>
+            )
+        }
+
+        <h5 class='how-it-works'>How it Works</h5>
+
+        <div class='how-it-works'>
+            <p>
+                <PeakLogger />
+                will automatically annotate summited peaks in the
+                <StravaLink text='Strava' />
+                activity description when you log a new activity.
+            </p>
+            <img src='/strava_activity_short.jpeg' />
+            <br />
+
+            <p>
+                <PeakLogger />
+                can automatically log ascents to your
+                <PBLink />
+                account.
+            </p>
+            <img src='/peakbagger_log_short.jpeg' />
+            <br />
+
+            <p>
+                <PeakLogger />
+                provides a convenient dashboard for viewing and analyzing your activities,
+                and the peaks bagged on each recorded activity.
+            </p>
+            <img src='/activity_example.png' />
+        </div>
+
+        <hr />
+
+        <p>
+            For more information visit the
+            <a href='/faq'>Frequently Asked Questions</a> and
+            <a href='/privacy'>Privacy Policy</a> pages.
+        </p>
+    </div>
+</LandingPage>
+
+<style>
+    div.content img {
+        @apply w-full max-w-[400px] m-1 border border-black rounded-lg;
+    }
+    div.content {
+        @apply text-center;
+    }
+    .login-div button {
+        @apply w-1/2 mb-4 mx-2 px-3 py-1.5 rounded-md;
+    }
+    .login-div .light-button {
+        @apply border-frog-500 border bg-frog-100 text-frog-500;
+    }
+    .login-div .dark-button {
+        @apply bg-frog-500 text-frog-100;
+    }
+    h5.how-it-works {
+        @apply text-frog-500 text-3xl mt-2 mb-2;
+    }
+    div.how-it-works {
+        @apply flex flex-col justify-center items-center;
+    }
+    div.how-it-works p {
+        @apply max-w-[500px];
+    }
+    hr {
+        @apply my-7;
+    }
+</style>

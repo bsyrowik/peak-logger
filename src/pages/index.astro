@@ -1,0 +1,13 @@
+---
+import LandingPage from '../layouts/LandingPage.astro';
+
+if (Astro.locals.user) {
+    return Astro.redirect('/recent');
+} else {
+    return Astro.redirect('/about');
+}
+---
+
+<LandingPage title='Peak Logger'>
+    <a href='/about'>Lean about Peak Logger</a>
+</LandingPage>

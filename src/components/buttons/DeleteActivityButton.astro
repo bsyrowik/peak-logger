@@ -1,0 +1,49 @@
+---
+import Popup from './Popup.astro';
+import StravaUpdateSettings from '../settings/StravaUpdateSettings.astro';
+import PBRemoveSettings from '../settings/PBRemoveSettings.astro';
+
+const { activityId, name, user } = Astro.props;
+---
+
+<Popup
+    id={activityId}
+    user={user}
+    buttonName='Delete'
+    title={'Delete activity ' + name}
+    action='deleteActivityAction'
+    data-activity-id={activityId}
+>
+    <Fragment slot='form-contents'>
+        <StravaUpdateSettings user={user} />
+        <PBRemoveSettings user={user} />
+    </Fragment>
+</Popup>
+
+<script>
+    import { deleteActivity } from '@util/core';
+    import { type User } from '@util/db';
+
+    declare global {
+        interface Window {
+            deleteActivityAction: any;
+        }
+    }
+
+    window.deleteActivityAction = async function (
+        user: User,
+        dataset: DOMStringMap,
+        formData: FormData
+    ) {
+        if (!dataset.activityId) return;
+        const activityId = Number(dataset.activityId);
+        console.log('attempting to delete activity...', activityId, user);
+
+        const success = await deleteActivity(user, activityId, formData);
+        if (!success) {
+            return () => alert('Not successful');
+        } else {
+            return () => location.replace('/recent');
+        }
+    };
+</script>

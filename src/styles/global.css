@@ -1,0 +1,22 @@
+:root {
+    --accent: 136, 58, 234;
+    --accent-light: 153, 198, 142;
+    --accent-dark: 49, 10, 101;
+    --accent-frog-green: #99C68E;
+    --accent-light-green: #F1F7ED;
+    --accent-gradient: linear-gradient(
+    200deg,
+    green,
+    lightgreen 60%,
+    lightgreen 30%
+    );
+    --accent-gradient-orange: linear-gradient(
+    45deg,
+    orange,
+    orange 10%,
+    white 60%
+    );
+}
+html {
+    font-family: system-ui, sans-serif;
+}

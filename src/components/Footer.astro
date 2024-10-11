@@ -1,0 +1,28 @@
+---
+const today = new Date();
+---
+
+<footer class='bg-frog-50 shadow-[0_50vh_0_50vh] shadow-frog-50'>
+    <div class='flex justify-center gap-4'>
+        <a href='/about'>About</a>
+        <a href='/faq'>FAQ</a>
+        <a href='/privacy'>Privacy</a>
+        <a href='/contact'>Contact</a>
+    </div>
+    <br />
+    <span>
+        &copy; {today.getFullYear()} Bain S. All rights reserved.
+    </span>
+    <br />
+    <div class='flex justify-center'>
+        <img src='/api_logo_pwrdBy_strava_stack_light.png' />
+    </div>
+</footer>
+
+<style>
+    footer {
+        padding: 2em 1em 2em 1em;
+        color: rgb(var(--gray));
+        text-align: center;
+    }
+</style>

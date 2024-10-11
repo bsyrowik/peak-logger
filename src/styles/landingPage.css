@@ -1,0 +1,80 @@
+main {
+    margin: auto;
+    padding: 1rem;
+    width: 800px;
+    max-width: calc(100% - 2rem);
+    font-size: 20px;
+    line-height: 1.6;
+    box-shadow: 0 0 32px rgba(0, 0, 0, 0.09);
+}
+h1 {
+    font-size: 4rem;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    margin-bottom: 1em;
+    color: green;
+}
+.text-gradient-orange {
+    background-image: var(--accent-gradient-orange);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 400%;
+    background-position: 0%;
+}
+.text-gradient {
+    background-image: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 400%;
+    background-position: 0%;
+}
+.instructions {
+    margin-bottom: 2rem;
+    border: 1px solid rgba(var(--accent-light), 25%);
+    background: linear-gradient(rgba(var(--accent-light), 66%), rgba(var(--accent-light), 33%));
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+.instructions code {
+    font-size: 0.8em;
+    font-weight: bold;
+    background: rgba(var(--accent-light), 12%);
+    color: rgb(var(--accent-light));
+    border-radius: 4px;
+    padding: 0.3em 0.4em;
+}
+.instructions strong {
+    color: rgb(var(--accent-light));
+}
+.link-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(24ch, 1fr));
+    gap: 2rem;
+    padding: 0;
+}
+
+div.content {
+    @apply mx-4;
+}
+div.content h2 {
+    @apply text-center text-4xl text-frog-400;
+}
+div.content h3 {
+    @apply mt-10 mb-2 text-frog-600 text-2xl;
+}
+div.content p {
+    @apply text-xl;
+}
+div.content a {
+    @apply underline;
+}
+div.content ul {
+    @apply list-disc my-4;
+}
+div.content li {
+    @apply ml-8;
+}
+div.content img {
+    @apply border border-frog-600 shadow-lg m-4;
+}

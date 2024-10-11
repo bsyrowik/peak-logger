@@ -1,0 +1,24 @@
+---
+import type { User } from '@util/db';
+import { PBRemoveAscentsName } from 'src/consts';
+
+interface Props {
+    user: User;
+}
+const { user } = Astro.props;
+
+// FIXME: placeholder in case we want to move this into user settings
+const removeSummits = user.id > 0;
+---
+
+<input
+    class='checkbox-style'
+    name={PBRemoveAscentsName}
+    id={PBRemoveAscentsName}
+    type='checkbox'
+    checked={removeSummits ? 'true' : undefined}
+/>
+<label class='text-black' for={PBRemoveAscentsName}
+    >Remove Peakbagger ascent reports</label
+>
+<br />

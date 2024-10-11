@@ -1,0 +1,12 @@
+---
+import { actions } from 'astro:actions';
+---
+
+<form
+    method='POST'
+    action={actions.peakbagger.clearPBData}
+    name='pb-unlink'
+    onsubmit="return confirm('Are you sure you want to unlink your PeakBagger.com account?');"
+>
+    <button>Unlink Account</button>
+</form>

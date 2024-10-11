@@ -1,0 +1,42 @@
+{
+    "cSpell.words": [
+      "apos",
+      "astro",
+      "astrojs",
+      "Backcountry",
+      "bbox",
+      "bitfield",
+      "firstname",
+      "Handcycle",
+      "lastname",
+      "mapbox",
+      "maplibre",
+      "maplibregl",
+      "oslojs",
+      "peaklogger",
+      "polyline",
+      "summited"
+    ],
+    "cSpell.ignorePaths": [
+      "package-lock.json",
+      "node_modules",
+      "vscode-extension",
+      ".git/{info,lfs,logs,refs,objects}/**",
+      ".git/{index,*refs,*HEAD}",
+      ".vscode",
+      ".vscode-insiders",
+      "pnpm-lock.yaml"
+    ],
+    "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "astro",
+    "typescript",
+    "typescriptreact"
+  ],
+  "prettier.documentSelectors": ["**/*.astro"],
+  "[astro]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.formatOnSave": true
+}

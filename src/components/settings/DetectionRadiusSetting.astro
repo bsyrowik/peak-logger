@@ -1,0 +1,28 @@
+---
+import type { User } from '@util/db';
+
+import { DetectionRadiusName } from 'src/consts.ts';
+
+interface Props {
+    user: User;
+}
+const { user } = Astro.props;
+
+const detectionThreshold = user.detection_radius;
+---
+
+<label class='text-black' for={DetectionRadiusName}>
+    Peak detection radius:
+</label>
+<input
+    id={DetectionRadiusName}
+    name={DetectionRadiusName}
+    required
+    value={detectionThreshold}
+    type='number'
+    class='bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg text-end'
+    min='0'
+    max='200'
+/>
+<span class='text-black'> m </span>
+<br />

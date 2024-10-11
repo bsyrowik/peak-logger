@@ -1,0 +1,29 @@
+---
+import LandingPage from '../../../layouts/LandingPage.astro';
+import StravaLink from '../../..//components/StravaLink.astro';
+import PeakLogger from '../../..//components/PeakLogger.astro';
+---
+
+<LandingPage title='Peak Logger'>
+    <div class='content'>
+        <h2>Existing Account Detected</h2>
+
+        <br />
+
+        <p>
+            The <StravaLink text='Strava' /> account you used to register is alrady
+            linked to a <PeakLogger /> account!
+        </p>
+
+        <br />
+
+        <p class='flex justify-center'>Please log-in instead:</p>
+    </div>
+
+    <a href='/login/strava?mode=login' data-astro-prefetch='false'>
+        <img
+            style='display:block;margin-left:auto;margin-right:auto;'
+            src='/btn_strava_connectwith_orange@2x.png'
+        />
+    </a>
+</LandingPage>

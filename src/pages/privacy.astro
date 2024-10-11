@@ -1,0 +1,39 @@
+---
+import LandingPage from '../layouts/LandingPage.astro';
+import StravaLink from '../components/StravaLink.astro';
+import PBLink from '../components/PBLink.astro';
+import PeakLogger from '../components/PeakLogger.astro';
+---
+
+<LandingPage title='Peak Logger'>
+    <div class='content'>
+        <h2>Privacy</h2>
+
+        <h3>Information Collected</h3>
+        <p>
+            <PeakLogger /> aims to collect the minimum amount of personal information
+            necessary. Some optional functionality of <PeakLogger /> may require
+            additional personal information to be collected, but it should be obvious
+            when you are providing this information, and you should always have the
+            option to remove any personal information at your convenience.
+        </p>
+
+        <h3>How Your Data is Used</h3>
+        <p>
+            Your information is only ever used to present information about your
+            activities in your <PeakLogger /> account. If you choose to have <PeakLogger
+            /> create ascent trip reports for your activities on <PBLink /> then
+            you may opt in to sharing information from your
+            <StravaLink text='Strava' /> activity as part of your trip report. No
+            information is shared with any other external sites.
+        </p>
+
+        <h3>Data Retention Policy</h3>
+        <p>
+            Your information will be stored only as long as you choose to
+            continue using
+            <PeakLogger />. All personal information is removed should you
+            choose to delete your account.
+        </p>
+    </div>
+</LandingPage>

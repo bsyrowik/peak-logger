@@ -1,0 +1,201 @@
+---
+import HeaderTitle from './HeaderTitle.astro';
+import HeaderLink from './HeaderLink.astro';
+
+var name = '';
+const loggedIn = Astro.locals.hasOwnProperty('user') && Astro.locals.user;
+if (loggedIn) {
+    name = Astro.locals.user.firstname;
+}
+
+const logoutCmd = 'logout(); return false;';
+---
+
+<script src='./logout.mts'></script>
+
+<header class='fixed top-0 w-full h-20 border-b'>
+    <nav>
+        <div class='my-4'>
+            <HeaderTitle href='/recent' />
+        </div>
+        {
+            loggedIn && (
+                <div class='md:basis-[30%] mb-4 text-[green] text-xl'>
+                    <div
+                        class='block float-end m-2 mb-0 menu-toggle4 cursor-pointer'
+                        aria-label='Open Menu'
+                        aria-expanded='false'
+                        aria-controls='menu-items4'
+                    >
+                        {name}
+                        <span class='arrow'>&#x25bc;</span>
+                    </div>
+                    <ul id='menu-items4' class='block menu4 flex gap-4 text-sm'>
+                        <li class='py-2'>
+                            <HeaderLink href='/account' text='Settings' />
+                        </li>
+                        <li class='py-2'>
+                            <HeaderLink
+                                class='float-end'
+                                href='#'
+                                onclick={logoutCmd}
+                                data-astro-prefetch='false'
+                                text='Sign Out'
+                            />
+                        </li>
+                    </ul>
+                </div>
+            )
+        }
+        {
+            !loggedIn && (
+                <>
+                    <div class='hidden md:block'>
+                        <a
+                            href='/login/strava?mode=login'
+                            data-astro-prefetch='false'
+                        >
+                            <button class='mr-2 px-3 py-1.5 rounded-md border-frog-500 border bg-frog-100 text-frog-500'>
+                                Log In
+                            </button>
+                        </a>
+                        <a href='/login/strava/register'>
+                            <button class='mr-4 px-3 py-1.5 rounded-md bg-frog-500 text-frog-100'>
+                                Sign Up
+                            </button>
+                        </a>
+                    </div>
+                    <div class='pr-2 flex md:hidden'>
+                        <div class='w-full max-w-3xl mx-auto relative'>
+                            <button
+                                class='menu-toggle3 w-8 h-8 -ml-1 flex items-center justify-center relative z-30'
+                                aria-label='Open Menu'
+                                aria-expanded='false'
+                                aria-controls='menu-items3'
+                            >
+                                <span class='menu-toggle-icon w-6 h-px relative bg-current' />
+                            </button>
+                        </div>
+                        <ul id='menu-items3' class='menu3 flex gap-6'>
+                            <li class='me-4 py-1'>
+                                <a
+                                    href='/login/strava?mode=login'
+                                    data-astro-prefetch='false'
+                                >
+                                    Log In
+                                </a>
+                            </li>
+                            <li class='me-4 py-1 font-bold'>
+                                <a href='/login/strava/register'>Sign Up</a>
+                            </li>
+                        </ul>
+                    </div>
+                </>
+            )
+        }
+    </nav>
+</header>
+
+<style>
+    header {
+        margin: 0;
+        padding: 0 0;
+        background: white;
+        box-shadow: 0 2px 8px rgba(var(--black), 5%);
+    }
+    nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .menu4 {
+        @apply flex-col absolute top-12 right-0 max-w-64 px-3 pt-1 pb-1 z-20 invisible opacity-0;
+        @apply bg-white border border-frog-600;
+    }
+    .menu4.is-visible {
+        @apply visible opacity-100;
+    }
+
+    @media (max-width: 767px) {
+        .menu3 {
+            @apply flex-col gap-1 absolute top-3 right-0 max-w-64 px-3 pt-10 pb-2 z-20 invisible opacity-0;
+            @apply bg-white border border-frog-600;
+        }
+        .menu3.is-visible {
+            @apply visible opacity-100;
+        }
+        .menu-toggle3.is-active .menu-toggle-icon {
+            @apply w-0;
+        }
+        .menu-toggle-icon:before,
+        .menu-toggle-icon:after {
+            @apply w-6 h-px absolute left-1/2 top-0 origin-center -translate-x-1/2 bg-current;
+            content: '';
+        }
+        .menu-toggle-icon:before {
+            @apply -mt-1.5;
+        }
+        .menu-toggle-icon:after {
+            @apply mt-1.5;
+        }
+        .menu-toggle3.is-active .menu-toggle-icon:before,
+        .menu-toggle3.is-active .menu-toggle-icon:after {
+            @apply mt-0;
+        }
+        .menu-toggle3.is-active .menu-toggle-icon:before {
+            @apply rotate-45;
+        }
+        .menu-toggle3.is-active .menu-toggle-icon:after {
+            @apply -rotate-45;
+        }
+    }
+</style>
+
+<script>
+    function menu3Toggle() {
+        const menu = document.querySelector('.menu3');
+        const menuToggleBtn = document.querySelector('.menu-toggle3');
+        menuToggleBtn?.addEventListener('click', () => {
+            const isMenuExpanded =
+                menuToggleBtn.getAttribute('aria-expanded') === 'true';
+            menuToggleBtn.classList.toggle('is-active');
+            menuToggleBtn.setAttribute(
+                'aria-expanded',
+                isMenuExpanded ? 'false' : 'true'
+            );
+            menuToggleBtn.setAttribute(
+                'aria-label',
+                isMenuExpanded ? 'Open Menu' : 'Close Menu'
+            );
+            menu?.classList.toggle('is-visible');
+        });
+    }
+    menu3Toggle();
+    document.addEventListener('astro:after-swap', menu3Toggle);
+
+    function menu4Toggle() {
+        const menu = document.querySelector('.menu4');
+        const menuToggleBtn = document.querySelector('.menu-toggle4');
+        const menuToggleBtnArrow = document.querySelector('.arrow');
+        menuToggleBtn?.addEventListener('click', () => {
+            const isMenuExpanded =
+                menuToggleBtn.getAttribute('aria-expanded') === 'true';
+            menuToggleBtn.classList.toggle('is-active');
+            menuToggleBtn.setAttribute(
+                'aria-expanded',
+                isMenuExpanded ? 'false' : 'true'
+            );
+            menuToggleBtn.setAttribute(
+                'aria-label',
+                isMenuExpanded ? 'Open Menu' : 'Close Menu'
+            );
+            menuToggleBtnArrow &&
+                (menuToggleBtnArrow.innerHTML = isMenuExpanded
+                    ? '&#x25bc;'
+                    : '&#x25b2;');
+            menu?.classList.toggle('is-visible');
+        });
+    }
+    menu4Toggle();
+    document.addEventListener('astro:after-swap', menu4Toggle);
+</script>

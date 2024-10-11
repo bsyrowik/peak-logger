@@ -1,0 +1,51 @@
+---
+import Popup from './Popup.astro';
+import StravaUpdateSettings from '../settings/StravaUpdateSettings.astro';
+import PBRemoveSettings from '../settings/PBRemoveSettings.astro';
+import PBAddSettings from '../settings/PBAddSettings.astro';
+import DetectionRadiusSetting from '../settings/DetectionRadiusSetting.astro';
+
+const { activityId, name, user } = Astro.props;
+---
+
+<Popup
+    id={activityId}
+    user={user}
+    buttonName='Re-Analyze'
+    title={"Re-analyze activity '" + name + "'"}
+    action='reanalyzeAscentAction'
+    data-activity-id={activityId}
+>
+    <Fragment slot='form-contents'>
+        <StravaUpdateSettings user={user} />
+        <PBRemoveSettings user={user} />
+        <PBAddSettings user={user} />
+        <DetectionRadiusSetting user={user} />
+    </Fragment>
+</Popup>
+
+<script>
+    import { reAnalyzeActivity } from '@util/core';
+    import { type User } from '@util/db';
+
+    declare global {
+        interface Window {
+            reanalyzeAscentAction: any;
+        }
+    }
+
+    window.reanalyzeAscentAction = async function (
+        user: User,
+        dataset: DOMStringMap,
+        formData: FormData
+    ) {
+        if (!dataset.activityId) return;
+        const activityId = Number(dataset.activityId);
+        console.log('re-analyzing activity...', activityId, user);
+        const success = await reAnalyzeActivity(user, activityId, formData);
+        if (!success) {
+            return () => alert('Not successful');
+        }
+        return () => location.reload();
+    };
+</script>

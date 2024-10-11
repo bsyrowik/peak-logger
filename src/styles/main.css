@@ -1,0 +1,52 @@
+body {
+    margin-top:0px;
+    margin-bottom:0px;
+}
+main {
+    /*margin: auto;*/
+    padding: 1rem;
+    width: 1000px;
+    /*max-width: calc(100% - 2rem);*/
+    font-size: 20px;
+    line-height: 1.6;
+    box-shadow: 0 0 32px rgba(0, 0, 0, 0.09);
+}
+input, button {
+    font-size: 20px;
+}
+button, input.button {
+    background-color: var(--accent-frog-green);
+    color: white;
+    border-radius: 5px;
+    transition-duration: 0.2s;
+    padding: 0px 6px;
+    margin: 2px 0px;
+}
+button:hover, input.button:hover {
+    background-color: green;
+    color: white;
+}
+h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    margin: 0;
+    color: green;
+}
+h2 {
+    margin: 0;
+    color: green;
+    font-size: 1.5rem;
+}
+.activity-select-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20ch, 1fr));
+    gap: 0.3rem;
+    padding: 0;
+}
+.link-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(30ch, 1fr));
+    gap: 1rem;
+}

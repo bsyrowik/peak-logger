@@ -1,0 +1,17 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+      "outDir": "dist",
+      "baseUrl": ".",
+      "paths": {
+          "@util/*": ["src/util/*"],
+          "@lib/*": ["src/lib/*"]
+      }
+  },
+  "exclude": [
+      "old",
+      "dist",
+      "cdk",
+	  "coverage"
+  ]
+}

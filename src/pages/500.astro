@@ -1,0 +1,22 @@
+---
+import LandingPage from '../layouts/LandingPage.astro';
+//import StravaLink from '../components/StravaLink.astro';
+//import PBLink from '../components/PBLink.astro';
+//import PeakLogger from '../components/PeakLogger.astro';
+
+//const loggedIn = Astro.locals.hasOwnProperty('user') && Astro.locals.user;
+
+interface Props {
+    error: unknown;
+}
+
+const { error } = Astro.props;
+---
+
+<LandingPage title='Peak Logger'>
+    <div class='content'>
+        <h2>Error Code 500</h2>
+
+        <div>{error instanceof Error ? error.message : 'Unknown error'}</div>
+    </div>
+</LandingPage>

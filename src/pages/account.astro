@@ -1,0 +1,393 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+import ActivitySelect from '../components/ActivitySelect.astro';
+import DeleteAccount from '../components/DeleteAccount.astro';
+import PBClear from '../components/PBClear.astro';
+import ExternalLinkIcon from '../components/ExternalLinkIcon.astro';
+import StravaLink from '../components/StravaLink.astro';
+
+import { actions } from 'astro:actions';
+import { Bitfield } from '@util/bitfield';
+import { ActivityType } from '@util/activity';
+import { stringToStravaScope } from '@util/strava_scope';
+import PBAddSettings from 'src/components/settings/PBAddSettings.astro';
+import StravaUpdateSettings from 'src/components/settings/StravaUpdateSettings.astro';
+import DetectionRadiusSetting from 'src/components/settings/DetectionRadiusSetting.astro';
+
+if (!Astro.locals.user) {
+    // Not logged in - go to main page
+    return Astro.redirect('/about');
+}
+
+var username = Astro.locals.user.firstname + ' ' + Astro.locals.user.lastname;
+const haveStrava = Astro.locals.user.strava_refresh_token != null;
+var peakbaggerUserId = Astro.locals.user.peakbagger_id;
+var pb_username = Astro.locals.user.pb_username ?? '';
+var activities = Astro.locals.user.enabled_activities ?? 0;
+
+const scopeBF = new Bitfield(Astro.locals.user.strava_approved_scope ?? 0);
+const scopeString = Object.keys(stringToStravaScope)
+    .filter((k) => scopeBF.get(stringToStravaScope[k]))
+    .join(',');
+const activityList = Object.keys(ActivityType)
+    .map((key) => Number(key))
+    .filter((key) => !isNaN(key));
+
+Astro.response.headers.set('Cache-Control', 'max-age=0');
+
+const activityResult = Astro.getActionResult(actions.dev.getStravaActivity);
+const settingsUpdated = Astro.getActionResult(actions.updateSettings);
+const ascentPostedResult = Astro.getActionResult(actions.dev.postSummitToPB);
+
+const devMode = !import.meta.env.PROD;
+---
+
+<Layout title='Peak Logger'>
+    <h2>Strava</h2>
+    <span style={haveStrava ? '' : 'display:none;'}>
+        Username: {username}
+        <br />
+        <StravaLink text='Strava Account' />
+        <br />
+        {
+            !scopeString.includes('activity:read_all') && (
+                <a
+                    class='underline'
+                    href='/login/strava?mode=update&all_scope=add'
+                    data-astro-prefetch='false'
+                >
+                    Authorize Peak Logger to read your private activities &rarr;
+                </a>
+            )
+        }
+        {
+            scopeString.includes('activity:read_all') && (
+                <a
+                    class='underline'
+                    href='/login/strava?mode=update&all_scope=remove'
+                    data-astro-prefetch='false'
+                >
+                    Revoke authorization to read your private activities &rarr;
+                </a>
+            )
+        }
+        <br />
+        <form
+            method='POST'
+            action={actions.strava.unlinkStravaAccount}
+            name='strava-unlink'
+            onsubmit="return confirm('Are you sure you want to unlink your Strava account?');"
+        >
+            <button>Unlink Account</button>
+        </form>
+        {
+            devMode && (
+                <>
+                    <span>Approved Scopes: {scopeString}</span>
+                    <br />
+                    <form
+                        method='POST'
+                        action={actions.dev.getStravaActivity}
+                        name='strava-get-activity'
+                    >
+                        <label for='peakId'>Activity index:</label>
+                        <input
+                            id='index'
+                            name='index'
+                            type='number'
+                            class='bg-gray-50 border border-gray-300 text-gray-900 text-xl text-end rounded-lg'
+                            required
+                            value='0'
+                            min='0'
+                            max='25'
+                        />
+                        <button>GET</button>
+                    </form>
+                </>
+            )
+        }
+        {
+            devMode && activityResult && !activityResult.error && (
+                <p>{activityResult.data}</p>
+            )
+        }
+    </span>
+    <span style={haveStrava ? 'display:none;' : ''}>
+        <a
+            href='/login/strava?mode=update&all_scope=remove'
+            data-astro-prefetch='false'
+        >
+            <img
+                style='display:block;margin-left:auto;margin-right:auto;'
+                src='/btn_strava_connectwith_orange@2x.png'
+            />
+        </a>
+    </span>
+
+    <hr />
+    <h2>Peakbagger</h2>
+    {
+        peakbaggerUserId ? (
+            <span>
+                Username: {pb_username}
+                <br />
+                <a
+                    href={
+                        'https://www.peakbagger.com/climber/climber.aspx?cid=' +
+                        peakbaggerUserId
+                    }
+                    class='underline'
+                    target='_blank'
+                >
+                    Peakbagger Account
+                </a>
+                <ExternalLinkIcon />
+                <PBClear />
+                {devMode && (
+                    <form
+                        method='POST'
+                        action={actions.dev.postSummitToPB}
+                        name='pb-post'
+                    >
+                        <label for='peakId'>Peak ID:</label>
+                        <input
+                            id='peakId'
+                            name='peakId'
+                            type='text'
+                            class='bg-gray-50 border border-gray-300 text-gray-900 text-xl text-end rounded-lg'
+                            required
+                            value='75149'
+                        />
+                        <button>Post</button>
+                        {ascentPostedResult && !ascentPostedResult.error && (
+                            <span class='updated-indicator'>
+                                {ascentPostedResult.data}
+                            </span>
+                        )}
+                    </form>
+                )}
+            </span>
+        ) : (
+            <span>
+                <form
+                    method='POST'
+                    class='pb-data-form'
+                    autocomplete='on'
+                    name='pb-login'
+                >
+                    <label for='pb_email'>Email:</label>
+                    <input
+                        id='pb_email'
+                        name='email'
+                        type='email'
+                        required
+                        class='bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg'
+                    />
+                    <br />
+                    <label for='pb_password'>Password:</label>
+                    <input
+                        id='pb_password'
+                        name='password'
+                        type='password'
+                        required
+                        class='bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg'
+                    />
+                    <br />
+                    <button>Log In</button>
+                </form>
+            </span>
+        )
+    }
+    <hr />
+    <h2>Settings</h2>
+    Enabled Activity Types:
+    <form class='enabled-activities' name='update-activities'>
+        <input
+            class='button'
+            type='submit'
+            name='convenienceButton'
+            value='All'
+        />
+        <input
+            class='button'
+            type='submit'
+            name='convenienceButton'
+            value='None'
+        />
+        <input
+            class='button'
+            type='submit'
+            name='convenienceButton'
+            value='Default'
+        />
+        <br />
+        <div class='activity-select-grid'>
+            {
+                activityList.map((activity) => (
+                    <ActivitySelect type={activity} activities={activities} />
+                ))
+            }
+        </div>
+        <button name='save'>Save</button>
+        <span class='updated-indicator' id='activities-updated-span' hidden
+            >Updated!</span
+        >
+    </form>
+    <hr />
+    <form
+        method='POST'
+        action={actions.updateSettings}
+        name='strava-update-description'
+    >
+        <StravaUpdateSettings user={Astro.locals.user} />
+        <PBAddSettings user={Astro.locals.user} />
+        <DetectionRadiusSetting user={Astro.locals.user} />
+        <button>Save</button>
+        {
+            settingsUpdated && !settingsUpdated.error && (
+                <span class='updated-indicator'>{settingsUpdated.data}</span>
+            )
+        }
+    </form>
+    <hr />
+
+    <DeleteAccount />
+</Layout>
+
+<script>
+    import { actions, isInputError } from 'astro:actions';
+    document.addEventListener('astro:page-load', () => {
+        const form: HTMLFormElement =
+            document.querySelector('form.pb-data-form')!;
+        form?.addEventListener('submit', async (event) => {
+            console.log('attempting to submit form....');
+            event.preventDefault();
+            const formData = new FormData(form);
+            const { data, error } = await actions.peakbagger.tryLogin(formData);
+            if (error) {
+                if (isInputError(error)) {
+                    if (error.fields.email) {
+                        alert(
+                            'Error in the Peakbagger Email field: ' +
+                                error.fields.email.join(', ')
+                        );
+                    }
+                    if (error.fields.password) {
+                        alert(
+                            'Error in the Peakbagger Password field: ' +
+                                error.fields.password.join(', ')
+                        );
+                    }
+                } else {
+                    alert(error);
+                }
+            } else {
+                alert(data);
+                location.reload();
+            }
+        });
+
+        const activityForm: HTMLFormElement = document.querySelector(
+            'form.enabled-activities'
+        )!;
+        activityForm?.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            if (event.submitter?.getAttribute('name') === 'convenienceButton') {
+                if (event.submitter.getAttribute('value') === 'All') {
+                    document
+                        .querySelectorAll<HTMLInputElement>('[id^=at_]')
+                        .forEach((element) => {
+                            element.checked = true;
+                        });
+                }
+                if (event.submitter.getAttribute('value') === 'None') {
+                    document
+                        .querySelectorAll<HTMLInputElement>('[id^=at_]')
+                        .forEach((element) => {
+                            element.checked = false;
+                        });
+                }
+                if (event.submitter.getAttribute('value') === 'Default') {
+                    document
+                        .querySelectorAll<HTMLInputElement>('[id^=at_]')
+                        .forEach((element) => {
+                            element.checked = false;
+                        });
+                    document
+                        .querySelectorAll<HTMLInputElement>('[id=at_Hike]')
+                        .forEach((element) => {
+                            element.checked = true;
+                        });
+                    document
+                        .querySelectorAll<HTMLInputElement>('[id=at_TrailRun]')
+                        .forEach((element) => {
+                            element.checked = true;
+                        });
+                }
+                return;
+            }
+            console.log('attempt to set activities:');
+            const formData = new FormData(activityForm);
+            // WARNING: This will not work properly if formData includes an array, or possibly other types!
+            var input: { [key: string]: boolean } = {};
+            for (const e of formData.entries()) {
+                input[e[0]] = e[1] == 'on';
+            }
+            console.log(input);
+            const element = document.querySelector<HTMLSpanElement>(
+                "span[id='activities-updated-span']"
+            );
+            if (element) {
+                element.hidden = true;
+                element.setAttribute('animation', 'none');
+            }
+            const { error } = await actions.updateEnabledActivities(input);
+            if (error) {
+                alert(error);
+            } else {
+                if (element) {
+                    element.hidden = false;
+                    element.setAttribute('animation', '');
+                }
+            }
+        });
+    });
+</script>
+
+<style>
+    .updated-indicator {
+        background-color: green;
+        color: white;
+        padding: 4px;
+        padding-left: 10px;
+        padding-right: 10px;
+        margin-left: 10px;
+
+        animation: updated-indicator 1s;
+        -webkit-animation: updated-indicator 1s;
+        animation-fill-mode: forwards;
+
+        animation-delay: 3s;
+        -webkit-animation-delay: 3s; /* Safari and Chrome */
+        -webkit-animation-fill-mode: forwards;
+    }
+
+    @keyframes updated-indicator {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0;
+        }
+    }
+
+    @-webkit-keyframes updated-indicator {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0;
+        }
+    }
+</style>

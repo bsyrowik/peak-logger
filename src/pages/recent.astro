@@ -1,0 +1,41 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ActivityCard from '../components/ActivityCard.astro';
+
+import {
+    getStravaActivitiesForUser,
+    getSummitedPeaksForActivities,
+} from '@util/db';
+import type { ActivityEntry, PeakEntry } from '@util/db';
+
+if (!Astro.locals.user) {
+    // Not logged in - go to main page
+    return Astro.redirect('/about');
+}
+
+const stravaUserId = Astro.locals.user.strava_id ?? 0;
+
+const activities: ActivityEntry[] =
+    await getStravaActivitiesForUser(stravaUserId);
+const summitedPeaks: { [activityId: number]: PeakEntry[] } =
+    await getSummitedPeaksForActivities(activities);
+activities.sort(
+    (a: ActivityEntry, b: ActivityEntry) =>
+        b.start_date.valueOf() - a.start_date.valueOf()
+);
+
+Astro.response.headers.set('Cache-Control', 'max-age=0');
+---
+
+<Layout title='Peak Logger'>
+    <div class='link-card-grid md:p-2.5'>
+        {
+            activities.map((activity: ActivityEntry) => (
+                <ActivityCard
+                    activity={activity}
+                    summitedPeaks={summitedPeaks[activity.id]}
+                />
+            ))
+        }
+    </div>
+</Layout>
