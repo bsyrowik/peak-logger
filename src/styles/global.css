@@ -20,3 +20,18 @@
 html {
     font-family: system-ui, sans-serif;
 }
+input, button {
+    font-size: 20px;
+}
+button, input.button {
+    background-color: var(--accent-frog-green);
+    color: white;
+    border-radius: 5px;
+    transition-duration: 0.2s;
+    padding: 0px 6px;
+    margin: 2px 0px;
+}
+button:hover, input.button:hover {
+    background-color: green;
+    color: white;
+}

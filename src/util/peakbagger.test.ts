@@ -94,7 +94,7 @@ test('login bad response', async () => {
     try {
         await tryLogin(28, 'a@b.c', password);
     } catch (e: any) {
-        console.log(e);
+        //console.log(e);
         expect(e.message).toContain('may be down');
     }
 });
@@ -108,7 +108,7 @@ test('login bad credentials', async () => {
     try {
         await tryLogin(28, 'a@b.c', password);
     } catch (e: any) {
-        console.log(e);
+        //console.log(e);
         expect(e.message).toContain('Not able to login');
     }
 });
