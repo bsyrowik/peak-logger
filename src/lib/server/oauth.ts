@@ -7,7 +7,7 @@ const baseURL = import.meta.env.PROD
 const redirectURI = baseURL + 'api/strava_callback';
 console.log('Providing Strava redirectURI:', redirectURI);
 console.log('Strava client ID:', import.meta.env.STRAVA_CLIENT_ID);
-console.log('Strava client secret:', import.meta.env.STRAVA_CLIENT_SECRET);
+//console.log('Strava client secret:', import.meta.env.STRAVA_CLIENT_SECRET);
 
 export const strava = new Strava(
     import.meta.env.STRAVA_CLIENT_ID,
