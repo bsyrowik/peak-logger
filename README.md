@@ -15,17 +15,17 @@ A basic web app that auto-detects summited peaks on Strava activities and option
 
 PeakLogger will automatically annotate summited peaks in the Strava activity description when you log a new activity.
 <br>
-<img src="./public/strava_activity_short.jpeg" width="256"/>
+<img src="./public/strava_activity_short.jpeg" width="400"/>
 
 
 Peakbagger can automatically log ascents to your Peakbagger.com account.
 <br>
-<img src="./public/peakbagger_log_short.jpeg" width="40%"/>
+<img src="./public/peakbagger_log_short.jpeg" width="50%"/>
 
 
 Peakbagger provides a convenient dashboard for viewing and analyzing your activities, and the peaks bagged on each recorded activity.
 <br>
-<img src="public/activity_example.png" width="40%"/>
+<img src="public/activity_example.png" style="max-width:350px;"/>
 
 
 A deployed version of the app can be found here:
