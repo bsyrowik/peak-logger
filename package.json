@@ -32,7 +32,7 @@
     "@types/mapbox__polyline": "^1.0.5",
     "@types/nodemailer": "^6.4.16",
     "arctic": "^1.9.2",
-    "astro": "^4.16.2",
+    "astro": "4.16.2",
     "bitfield": "^4.2.0",
     "drizzle-orm": "^0.34.1",
     "fast-xml-parser": "^4.5.0",
