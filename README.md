@@ -8,7 +8,7 @@
 [![GitHub forks](https://img.shields.io/github/forks/bsyrowik/peak-logger.svg?style=social&label=Fork)](https://GitHub.com/bsyrowik/peak-logger/network/)
 [![GitHub stars](https://img.shields.io/github/stars/bsyrowik/peak-logger.svg?style=social&label=Star)](https://GitHub.com/bsyrowik/peak-logger/stargazers/)
 
-A basic web app that auto-detects summited peaks on Strava activities and optionally logs them to [peakbagger.com](https://peakbagger.com).
+A basic web app that auto-detects summited peaks on [Strava](https://www.strava.com/) activities and optionally logs them to [peakbagger.com](https://peakbagger.com).
 
 
 ## How it Works
@@ -34,7 +34,7 @@ https://peaklogger.app
 
 ## Technology
 
-This web app is built using Astro and is deployed on AWS.
+This web app is built using [Astro](https://astro.build/) and is deployed on [AWS](https://aws.amazon.com/).
 
 
 
