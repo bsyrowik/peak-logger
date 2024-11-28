@@ -8,7 +8,28 @@
 [![GitHub forks](https://img.shields.io/github/forks/bsyrowik/peak-logger.svg?style=social&label=Fork)](https://GitHub.com/bsyrowik/peak-logger/network/)
 [![GitHub stars](https://img.shields.io/github/stars/bsyrowik/peak-logger.svg?style=social&label=Star)](https://GitHub.com/bsyrowik/peak-logger/stargazers/)
 
-Deployed here:
+A basic web app that auto-detects summited peaks on Strava activities and optionally logs them to ![peakbagger.com](https://peakbagger.com).
+
+
+## How it Works
+
+PeakLogger will automatically annotate summited peaks in the Strava activity description when you log a new activity.
+![strava activity](./public/strava_activity_short.jpeg)
+
+Peakbagger can automatically log ascents to your Peakbagger.com account.
+![peakbagger log](./public/peakbagger_log_short.jpeg)
+
+Peakbagger provides a convenient dashboard for viewing and analyzing your activities, and the peaks bagged on each recorded activity.
+![exampe](./public/activity_example.jpeg)
+
+A deployed version of the app is found here:
 https://peaklogger.app
+
+
+## Technology
+
+This web app is built using Astro and is deployed on AWS.
+
+
 
 ![Powered by Strava](./public/api_logo_pwrdBy_strava_stack_light.png)
