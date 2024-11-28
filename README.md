@@ -7,3 +7,8 @@
 [![GitHub watchers](https://img.shields.io/github/watchers/bsyrowik/peak-logger.svg?style=social&label=Watch)](https://GitHub.com/bsyrowik/peak-logger/watchers/)
 [![GitHub forks](https://img.shields.io/github/forks/bsyrowik/peak-logger.svg?style=social&label=Fork)](https://GitHub.com/bsyrowik/peak-logger/network/)
 [![GitHub stars](https://img.shields.io/github/stars/bsyrowik/peak-logger.svg?style=social&label=Star)](https://GitHub.com/bsyrowik/peak-logger/stargazers/)
+
+Deployed here:
+https://peaklogger.app
+
+![Powered by Strava](./public/api_logo_pwrdBy_strava_stack_light.png)
