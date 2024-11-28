@@ -120,8 +120,8 @@ test('getDetailedActivity 402', async () => {
         activityId,
         user as unknown as User
     );
-    console.log(result);
-    console.log(typeof result);
+    //console.log(result);
+    //console.log(typeof result);
 
     expect(myFetch.mock.lastCall[0]).toContain(
         'strava.com/api/v3/activities/' + activityId
